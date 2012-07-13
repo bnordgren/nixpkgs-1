@@ -4,12 +4,23 @@ export LANG="en_US.UTF-8"
 export LOCALE_ARCHIVE=$glibcLocales/lib/locale/locale-archive
 export M2_REPO=$TMPDIR/repository
 
+# Build using maven.
 mkdir -p $TMPDIR
 cp -r $src $TMPDIR/src
 chmod -R u+w $TMPDIR/src
 cd $TMPDIR/src
 mvn -debug -Dmaven.repo.local=$M2_REPO install > $TMPDIR/build.log
 
+# Now get rid of bad libs in the lib dir
+mkdir -p $TMPDIR/war_edit
+cd $TMPDIR/war_edit
+jar xf $TMPDIR/$warfile
+for badLib in $badLibs ; do 
+  rm WEB-INF/lib/$badLib
+done
+jar cf $TMPDIR/$warfile *
+
+# copy entire repository to $out
 mkdir -p $out
 cp -r $TMPDIR/repository $out
 

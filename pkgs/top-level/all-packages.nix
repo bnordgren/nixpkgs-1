@@ -5127,6 +5127,7 @@ let
 
   geonetwork = callPackage ../servers/http/geonetwork { };
   geoserver  = callPackage ../servers/http/geoserver { };
+  geoserverPyramid = callPackage ../servers/http/geoserver/pyramid.nix { } ;
 
   sabnzbd = callPackage ../servers/sabnzbd { };
 

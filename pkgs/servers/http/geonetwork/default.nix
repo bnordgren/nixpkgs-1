@@ -1,11 +1,12 @@
-{stdenv, fetchsvn, jre, ant, maven2 }:
+{stdenv, fetchsvn, jdk, ant, maven2 }:
 
 stdenv.mkDerivation {
   version = "2.6.4" ;
   name = "geonetwork-2.6.4" ;
-  buildInputs = [ jre ant maven2] ; 
+  buildInputs = [ jdk ant maven2] ; 
   warfile = "repository/org/geonetwork-opensource/geonetwork-main/2.6.4/geonetwork-main-2.6.4.war" ;
   gastexe = ./gast ;
+  badLibs = [ "servlet-api-2.5-6.1.14.jar" "xercesImpl-2.7.1.jar" ] ; 
 
   builder = ./builder.sh ; 
 

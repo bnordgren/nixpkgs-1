@@ -1,11 +1,13 @@
-{stdenv, fetchurl, unzip }:
+{stdenv, fetchurl, unzip, jdk }:
 
 stdenv.mkDerivation {
+  inherit jdk ; 
   version = "2.1.4" ;
   name = "geoserver-2.1.4" ;
   description = "GeoServer is a Java-based software server that allows users to view and edit geospatial data" ;
-  buildInputs = [ unzip ] ; 
+  buildInputs = [ unzip jdk ] ; 
   warfile = "geoserver.war" ;
+  badLibs = [ "xercesImpl-2.6.2.jar" "servlet-api-2.4.jar" ] ; 
 
   builder = ./builder.sh ; 
 
