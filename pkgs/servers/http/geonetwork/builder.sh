@@ -9,6 +9,7 @@ mkdir -p $TMPDIR
 cp -r $src $TMPDIR/src
 chmod -R u+w $TMPDIR/src
 cd $TMPDIR/src
+patch -p0 < $ldapPatch
 mvn -debug -Dmaven.repo.local=$M2_REPO install > $TMPDIR/build.log
 
 # Now get rid of bad libs in the lib dir

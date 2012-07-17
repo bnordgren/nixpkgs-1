@@ -7,6 +7,7 @@ stdenv.mkDerivation {
   warfile = "repository/org/geonetwork-opensource/geonetwork-main/2.6.4/geonetwork-main-2.6.4.war" ;
   gastexe = ./gast ;
   badLibs = [ "servlet-api-2.5-6.1.14.jar" "xercesImpl-2.7.1.jar" ] ; 
+  ldapPatch = ./ldap.patch ; 
 
   builder = ./builder.sh ; 
 
