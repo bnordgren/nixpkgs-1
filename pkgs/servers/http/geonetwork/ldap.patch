@@ -1,3 +1,323 @@
+Index: web/src/main/webapp/xsl/xml/config.xsl
+===================================================================
+--- web/src/main/webapp/xsl/xml/config.xsl	(revision 9269)
++++ web/src/main/webapp/xsl/xml/config.xsl	(working copy)
+@@ -25,6 +25,7 @@
+ 		<xsl:variable name="ldapLogin"  select="$ldap/login/children"/>
+ 		<xsl:variable name="ldapDisNam" select="$ldap/distinguishedNames/children"/>
+ 		<xsl:variable name="ldapUsrAtt" select="$ldap/userAttribs/children"/>
++		<xsl:variable name="ldapBind"   select="$ldap/bind/children"/>
+ 		<xsl:variable name="userSelfRegistration" select="children/userSelfRegistration/children"/>
+ 		<xsl:variable name="clickablehyperlinks" select="children/clickablehyperlinks/children"/>		
+ 		<xsl:variable name="localrating" select="children/localrating/children"/>		
+@@ -171,6 +172,11 @@
+ 					<base><xsl:value-of select="$ldapDisNam/base/value"/></base>
+ 					<users><xsl:value-of select="$ldapDisNam/users/value"/></users>
+ 				</distinguishedNames>
++				<anonBind><xsl:value-of select="$ldap/anonBind/value" /></anonBind>
++				<bind>
++					<bindDn><xsl:value-of select="$ldapBind/bindDn/value"/></bindDn>
++					<bindPw><xsl:value-of select="$ldapBind/bindPw/value"/></bindPw>
++				</bind>
+ 				<userAttribs>
+ 					<name><xsl:value-of select="$ldapUsrAtt/name/value"/></name>
+ 					<profile><xsl:value-of select="$ldapUsrAtt/profile/value"/></profile>
+Index: web/src/main/webapp/xsl/config/config.xsl
+===================================================================
+--- web/src/main/webapp/xsl/config/config.xsl	(revision 9269)
++++ web/src/main/webapp/xsl/config/config.xsl	(working copy)
+@@ -514,6 +514,17 @@
+ 					<td class="padded"><xsl:call-template name="ldapDistNames"/></td>
+ 				</tr>
+ 							
++				<!-- bind credentials -->
++							
++				<tr>
++					<td class="padded"><xsl:value-of select="/root/gui/config/bindInfo"/></td>
++					<td/>
++				</tr>
++				<tr>
++					<td/>
++					<td class="padded"><xsl:call-template name="ldapBindInfo"/></td>
++				</tr>
++							
+ 				<!-- user's attributes -->
+ 							
+ 				<tr>
+@@ -572,6 +583,27 @@
+ 	
+ 	<!-- ============================================================================================= -->
+ 	
++	<xsl:template name="ldapBindInfo">
++		<table>
++			<tr>
++				<td class="padded" width="60px"><label for="ldap.anonBind"><xsl:value-of select="/root/gui/config/anonBind"/></label></td>
++				<td class="padded"><input id="ldap.anonBind" class="content" type="checkbox"/></td>
++			</tr>
++			
++			<tr>
++				<td class="padded" width="60px"><label for="ldap.bindDN"><xsl:value-of select="/root/gui/config/bindDN"/></label></td>
++				<td class="padded"><input id="ldap.bindDN" class="content" type="text" value="" size="20"/></td>
++			</tr>
++			
++			<tr>
++				<td class="padded" width="60px"><label for="ldap.bindPW"><xsl:value-of select="/root/gui/config/bindPW"/></label></td>
++				<td class="padded"><input id="ldap.bindPW" class="content" type="password" value="" size="20"/></td>
++			</tr>
++		</table>
++	</xsl:template>
++
++	<!-- ============================================================================================= -->
++	
+ 	<xsl:template name="ldapUserAttribs">
+ 		<table>
+ 			<tr>
+Index: web/src/main/webapp/scripts/config/view.js
+===================================================================
+--- web/src/main/webapp/scripts/config/view.js	(revision 9269)
++++ web/src/main/webapp/scripts/config/view.js	(working copy)
+@@ -55,6 +55,8 @@
+ 		{ id:'ldap.port',         type:'integer',  minValue:80, maxValue:65535, empty:true },		
+ 		{ id:'ldap.baseDN',       type:'length',  minSize :1,  maxSize :200 },
+ 		{ id:'ldap.usersDN',      type:'length',  minSize :1,  maxSize :200 },
++		{ id:'ldap.bindDN',       type:'length',  minSize :1,  maxSize :200 },
++		{ id:'ldap.bindPW',       type:'length',  minSize :1,  maxSize :200 },
+ 		{ id:'ldap.nameAttr',     type:'length',  minSize :1,  maxSize :200 },
+         { id:'ldap.uidAttr',      type:'length',  minSize :1,  maxSize :20 },
+         
+@@ -149,6 +151,9 @@
+     $('ldap.uidAttr')     .value = data['LDAP_ATTR_UID'];    
+ 	$('ldap.baseDN')      .value = data['LDAP_DN_BASE'];
+ 	$('ldap.usersDN')     .value = data['LDAP_DN_USERS'];
++	$('ldap.anonBind')  .checked = data['LDAP_ANON_BIND'] == 'true' ; 
++	$('ldap.bindDN')      .value = data['LDAP_DN_BIND'];
++	$('ldap.bindPW')      .value = data['LDAP_PW_BIND'];
+ 	$('ldap.nameAttr')    .value = data['LDAP_ATTR_NAME'];
+ 	$('ldap.profileAttr') .value = data['LDAP_ATTR_PROFILE'];
+ 	
+@@ -240,6 +245,9 @@
+         LDAP_ATTR_UID      : $F('ldap.uidAttr'),        
+ 		LDAP_DN_BASE       : $F('ldap.baseDN'),
+ 		LDAP_DN_USERS      : $F('ldap.usersDN'),
++		LDAP_ANON_BIND     : $('ldap.anonBind').checked,
++		LDAP_DN_BIND       : $F('ldap.bindDN'),
++		LDAP_PW_BIND       : $F('ldap.bindPW'),
+ 		LDAP_ATTR_NAME     : $F('ldap.nameAttr'),
+ 		LDAP_ATTR_PROFILE  : $F('ldap.profileAttr'),
+ 		
+Index: web/src/main/webapp/scripts/config/model.js
+===================================================================
+--- web/src/main/webapp/scripts/config/model.js	(revision 9269)
++++ web/src/main/webapp/scripts/config/model.js	(working copy)
+@@ -80,6 +80,9 @@
+             LDAP_ATTR_UID     : xml.evalXPath(node, 'ldap/uidAttr'),            
+ 			LDAP_DN_BASE      : xml.evalXPath(node, 'ldap/distinguishedNames/base'),
+ 			LDAP_DN_USERS     : xml.evalXPath(node, 'ldap/distinguishedNames/users'),
++			LDAP_ANON_BIND    : xml.evalXPath(node, 'ldap/anonBind'),
++			LDAP_DN_BIND      : xml.evalXPath(node, 'ldap/bind/bindDn'),
++			LDAP_PW_BIND      : xml.evalXPath(node, 'ldap/bind/bindPw'),
+ 			LDAP_ATTR_NAME    : xml.evalXPath(node, 'ldap/userAttribs/name'),
+ 			LDAP_ATTR_PROFILE : xml.evalXPath(node, 'ldap/userAttribs/profile'),
+ 
+@@ -211,6 +214,11 @@
+ '			<base>{LDAP_DN_BASE}</base>'+
+ '			<users>{LDAP_DN_USERS}</users>'+
+ '		</distinguishedNames>'+
++'		<anonBind>{LDAP_ANON_BIND}</anonBind>'+
++'		<bind>'+
++'			<bindDn>{LDAP_DN_BIND}</bindDn>'+
++'			<bindPw>{LDAP_PW_BIND}</bindPw>'+
++'		</bind>'+
+ '		<userAttribs>'+
+ '			<name>{LDAP_ATTR_NAME}</name>'+
+ '			<profile>{LDAP_ATTR_PROFILE}</profile>'+
+Index: web/src/main/webapp/loc/en/xml/config.xml
+===================================================================
+--- web/src/main/webapp/loc/en/xml/config.xml	(revision 9269)
++++ web/src/main/webapp/loc/en/xml/config.xml	(working copy)
+@@ -127,6 +127,10 @@
+ 	<distNames>Distinguished names</distNames>
+ 	<baseDN>Base</baseDN>
+ 	<usersDN>Users</usersDN>
++	<bindInfo>LDAP Bind Credentials</bindInfo>
++	<anonBind>Anonymous Bind</anonBind>
++	<bindDN>Bind DN</bindDN>
++	<bindPW>Bind Password</bindPW>
+ 	<userAttribs>User's attributes</userAttribs>
+ 	<password>Password</password>
+ 	<profile>Profile</profile>
+@@ -321,6 +325,17 @@
+ 		<tip id="xlinkResolver.enable">
+ 			If set, XLinks to metadata fragments in records will be resolved.
+ 		</tip>
++		
++		<!-- ldap -->
++		<tip id="ldap.anonBind">
++			If set, the server does not need a valid set of credentials to connect to LDAP.
++		</tip>
++		<tip id="ldap.bindDN">
++			A valid user to use on initial connection to LDAP.
++		</tip>
++		<tip id="ldap.bindPW">
++			Password to use for initial connection to LDAP.
++		</tip>
+ 	</tips>
+ 	
+ </strings>
+Index: web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-default.sql
+===================================================================
+--- web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-default.sql	(revision 9269)
++++ web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-default.sql	(working copy)
+@@ -8902,6 +8902,8 @@
+ INSERT INTO Settings VALUES (85,80,'uidAttr','uid');
+ INSERT INTO Settings VALUES (86,80,'distinguishedNames',NULL);
+ INSERT INTO Settings VALUES (87,80,'userAttribs',NULL);
++INSERT INTO Settings VALUES (88,80,'anonBind','true');
++INSERT INTO Settings VALUES (89,80,'bind',NULL);
+ INSERT INTO Settings VALUES (90,1,'selectionmanager',NULL);
+ INSERT INTO Settings VALUES (91,90,'maxrecords','1000');
+ INSERT INTO Settings VALUES (100,86,'base','dc=fao,dc=org');
+@@ -8912,6 +8914,8 @@
+ INSERT INTO Settings VALUES (121,120,'enable','true');
+ INSERT INTO Settings VALUES (122,120,'contactId',NULL);
+ INSERT INTO Settings VALUES (131,120,'metadataPublic','false');
++INSERT INTO Settings VALUES (140,89,'bindDn','cn=fake.name,ou=people,dc=fao,dc=org');
++INSERT INTO Settings VALUES (141,89,'bindPw','fake_password');
+ INSERT INTO Settings VALUES (170,1,'shib',NULL);
+ INSERT INTO Settings VALUES (171,170,'use','false');
+ INSERT INTO Settings VALUES (172,170,'path','/geonetwork/srv/en/shib.user.login');
+Index: web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-sqlserver.sql
+===================================================================
+--- web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-sqlserver.sql	(revision 9269)
++++ web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-sqlserver.sql	(working copy)
+@@ -8902,6 +8902,8 @@
+ INSERT INTO Settings VALUES (85,80,'uidAttr','uid');
+ INSERT INTO Settings VALUES (86,80,'distinguishedNames',NULL);
+ INSERT INTO Settings VALUES (87,80,'userAttribs',NULL);
++INSERT INTO Settings VALUES (88,80,'anonBind','true');
++INSERT INTO Settings VALUES (89,80,'bind',NULL);
+ INSERT INTO Settings VALUES (90,1,'selectionmanager',NULL);
+ INSERT INTO Settings VALUES (91,90,'maxrecords','1000');
+ INSERT INTO Settings VALUES (100,86,'base','dc=fao,dc=org');
+@@ -8912,6 +8914,8 @@
+ INSERT INTO Settings VALUES (121,120,'enable','true');
+ INSERT INTO Settings VALUES (122,120,'contactId',NULL);
+ INSERT INTO Settings VALUES (131,120,'metadataPublic','false');
++INSERT INTO Settings VALUES (140,89,'bindDn','cn=fake.name,ou=people,dc=fao,dc=org');
++INSERT INTO Settings VALUES (141,89,'bindPw','fake_password');
+ INSERT INTO Settings VALUES (170,1,'shib',NULL);
+ INSERT INTO Settings VALUES (171,170,'use','false');
+ INSERT INTO Settings VALUES (172,170,'path','/geonetwork/srv/en/shib.user.login');
+Index: web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-postgis.sql
+===================================================================
+--- web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-postgis.sql	(revision 9269)
++++ web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-postgis.sql	(working copy)
+@@ -8883,6 +8883,8 @@
+ INSERT INTO Settings VALUES (85,80,'uidAttr','uid');
+ INSERT INTO Settings VALUES (86,80,'distinguishedNames',NULL);
+ INSERT INTO Settings VALUES (87,80,'userAttribs',NULL);
++INSERT INTO Settings VALUES (88,80,'anonBind','true');
++INSERT INTO Settings VALUES (89,80,'bind',NULL);
+ INSERT INTO Settings VALUES (90,1,'selectionmanager',NULL);
+ INSERT INTO Settings VALUES (91,90,'maxrecords','1000');
+ INSERT INTO Settings VALUES (100,86,'base','dc=fao,dc=org');
+@@ -8893,6 +8895,8 @@
+ INSERT INTO Settings VALUES (121,120,'enable','true');
+ INSERT INTO Settings VALUES (122,120,'contactId',NULL);
+ INSERT INTO Settings VALUES (131,120,'metadataPublic','false');
++INSERT INTO Settings VALUES (140,89,'bindDn','cn=fake.name,ou=people,dc=fao,dc=org');
++INSERT INTO Settings VALUES (141,89,'bindPw','fake_password');
+ INSERT INTO Settings VALUES (170,1,'shib',NULL);
+ INSERT INTO Settings VALUES (171,170,'use','false');
+ INSERT INTO Settings VALUES (172,170,'path','/geonetwork/srv/en/shib.user.login');
+Index: web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-mckoi.sql
+===================================================================
+--- web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-mckoi.sql	(revision 9269)
++++ web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-mckoi.sql	(working copy)
+@@ -8900,6 +8900,8 @@
+ INSERT INTO Settings VALUES (85,80,'uidAttr','uid');
+ INSERT INTO Settings VALUES (86,80,'distinguishedNames',NULL);
+ INSERT INTO Settings VALUES (87,80,'userAttribs',NULL);
++INSERT INTO Settings VALUES (88,80,'anonBind','true');
++INSERT INTO Settings VALUES (89,80,'bind',NULL);
+ INSERT INTO Settings VALUES (90,1,'selectionmanager',NULL);
+ INSERT INTO Settings VALUES (91,90,'maxrecords','1000');
+ INSERT INTO Settings VALUES (100,86,'base','dc=fao,dc=org');
+@@ -8910,6 +8912,8 @@
+ INSERT INTO Settings VALUES (121,120,'enable','true');
+ INSERT INTO Settings VALUES (122,120,'contactId',NULL);
+ INSERT INTO Settings VALUES (131,120,'metadataPublic','false');
++INSERT INTO Settings VALUES (140,89,'bindDn','cn=fake.name,ou=people,dc=fao,dc=org');
++INSERT INTO Settings VALUES (141,89,'bindPw','fake_password');
+ INSERT INTO Settings VALUES (170,1,'shib',NULL);
+ INSERT INTO Settings VALUES (171,170,'use','false');
+ INSERT INTO Settings VALUES (172,170,'path','/geonetwork/srv/en/shib.user.login');
+Index: web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-mysql.sql
+===================================================================
+--- web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-mysql.sql	(revision 9269)
++++ web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-mysql.sql	(working copy)
+@@ -8901,6 +8901,8 @@
+ INSERT INTO Settings VALUES (85,80,'uidAttr','uid');
+ INSERT INTO Settings VALUES (86,80,'distinguishedNames',NULL);
+ INSERT INTO Settings VALUES (87,80,'userAttribs',NULL);
++INSERT INTO Settings VALUES (88,80,'anonBind','true');
++INSERT INTO Settings VALUES (89,80,'bind',NULL);
+ INSERT INTO Settings VALUES (90,1,'selectionmanager',NULL);
+ INSERT INTO Settings VALUES (91,90,'maxrecords','1000');
+ INSERT INTO Settings VALUES (100,86,'base','dc=fao,dc=org');
+@@ -8911,6 +8913,8 @@
+ INSERT INTO Settings VALUES (121,120,'enable','true');
+ INSERT INTO Settings VALUES (122,120,'contactId',NULL);
+ INSERT INTO Settings VALUES (131,120,'metadataPublic','false');
++INSERT INTO Settings VALUES (140,89,'bindDn','cn=fake.name,ou=people,dc=fao,dc=org');
++INSERT INTO Settings VALUES (141,89,'bindPw','fake_password');
+ INSERT INTO Settings VALUES (170,1,'shib',NULL);
+ INSERT INTO Settings VALUES (171,170,'use','false');
+ INSERT INTO Settings VALUES (172,170,'path','/geonetwork/srv/en/shib.user.login');
+Index: web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-oracle.sql
+===================================================================
+--- web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-oracle.sql	(revision 9269)
++++ web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-oracle.sql	(working copy)
+@@ -8901,6 +8901,8 @@
+ INSERT INTO Settings VALUES (85,80,'uidAttr','uid');
+ INSERT INTO Settings VALUES (86,80,'distinguishedNames',NULL);
+ INSERT INTO Settings VALUES (87,80,'userAttribs',NULL);
++INSERT INTO Settings VALUES (88,80,'anonBind','true');
++INSERT INTO Settings VALUES (89,80,'bind',NULL);
+ INSERT INTO Settings VALUES (90,1,'selectionmanager',NULL);
+ INSERT INTO Settings VALUES (91,90,'maxrecords','1000');
+ INSERT INTO Settings VALUES (100,86,'base','dc=fao,dc=org');
+@@ -8911,6 +8913,8 @@
+ INSERT INTO Settings VALUES (121,120,'enable','true');
+ INSERT INTO Settings VALUES (122,120,'contactId',NULL);
+ INSERT INTO Settings VALUES (131,120,'metadataPublic','false');
++INSERT INTO Settings VALUES (140,89,'bindDn','cn=fake.name,ou=people,dc=fao,dc=org');
++INSERT INTO Settings VALUES (141,89,'bindPw','fake_password');
+ INSERT INTO Settings VALUES (170,1,'shib',NULL);
+ INSERT INTO Settings VALUES (171,170,'use','false');
+ INSERT INTO Settings VALUES (172,170,'path','/geonetwork/srv/en/shib.user.login');
+Index: web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-postgres.sql
+===================================================================
+--- web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-postgres.sql	(revision 9269)
++++ web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-postgres.sql	(working copy)
+@@ -8883,6 +8883,8 @@
+ INSERT INTO Settings VALUES (85,80,'uidAttr','uid');
+ INSERT INTO Settings VALUES (86,80,'distinguishedNames',NULL);
+ INSERT INTO Settings VALUES (87,80,'userAttribs',NULL);
++INSERT INTO Settings VALUES (88,80,'anonBind','true');
++INSERT INTO Settings VALUES (89,80,'bind',NULL);
+ INSERT INTO Settings VALUES (90,1,'selectionmanager',NULL);
+ INSERT INTO Settings VALUES (91,90,'maxrecords','1000');
+ INSERT INTO Settings VALUES (100,86,'base','dc=fao,dc=org');
+@@ -8893,6 +8895,8 @@
+ INSERT INTO Settings VALUES (121,120,'enable','true');
+ INSERT INTO Settings VALUES (122,120,'contactId',NULL);
+ INSERT INTO Settings VALUES (131,120,'metadataPublic','false');
++INSERT INTO Settings VALUES (140,89,'bindDn','cn=fake.name,ou=people,dc=fao,dc=org');
++INSERT INTO Settings VALUES (141,89,'bindPw','fake_password');
+ INSERT INTO Settings VALUES (170,1,'shib',NULL);
+ INSERT INTO Settings VALUES (171,170,'use','false');
+ INSERT INTO Settings VALUES (172,170,'path','/geonetwork/srv/en/shib.user.login');
 Index: web/src/main/java/org/fao/geonet/services/config/Set.java
 ===================================================================
 --- web/src/main/java/org/fao/geonet/services/config/Set.java	(revision 9269)
@@ -12,62 +332,6 @@ Index: web/src/main/java/org/fao/geonet/services/config/Set.java
  		new ConfigEntry(ConfigEntry.Type.STRING, true,  "ldap/userAttribs/name",        "system/ldap/userAttribs/name"),
  		new ConfigEntry(ConfigEntry.Type.STRING, true,  "ldap/userAttribs/password",    "system/ldap/userAttribs/password"),
  		new ConfigEntry(ConfigEntry.Type.STRING, false, "ldap/userAttribs/profile",     "system/ldap/userAttribs/profile"),
-Index: web/src/main/java/org/fao/geonet/services/login/LDAPContext.java
-===================================================================
---- web/src/main/java/org/fao/geonet/services/login/LDAPContext.java	(revision 9269)
-+++ web/src/main/java/org/fao/geonet/services/login/LDAPContext.java	(working copy)
-@@ -53,6 +53,9 @@
- 		defProfile    = sm.getValue      (prefix +"/defaultProfile");
- 		baseDN        = sm.getValue      (prefix +"/distinguishedNames/base");
- 		usersDN       = sm.getValue      (prefix +"/distinguishedNames/users");
-+        anonBind      = sm.getValueAsBool(prefix +"/anonBind") ; 
-+        bindDN        = sm.getValue      (prefix +"/bind/bindDn") ; 
-+        bindPW        = sm.getValue      (prefix +"/bind/bindPw") ; 
- 		nameAttr      = sm.getValue      (prefix +"/userAttribs/name");
- 		profileAttr   = sm.getValue      (prefix +"/userAttribs/profile");
- 		emailAttr     = "mail";  //TODO make it configurable
-@@ -89,7 +92,17 @@
-             String path = null;
- 
-             try {
--                path = LDAPUtil.findUserDN(getUrl(), uidFilter, usersBaseDN);
-+				if (anonBind) { 
-+					// if the directory allows anonymous searches, don't bother
-+					// providing credentials.
-+					path = LDAPUtil.findUserDN(getUrl(), uidFilter, usersBaseDN);
-+				}
-+				else
-+				{
-+					// search the directory using the credentials provided
-+					// in the configuration.
-+					path = LDAPUtil.findUserDN(getUrl(), uidFilter, usersBaseDN, bindDN, bindPW) ; 
-+				}
-             } catch (NamingException ex) {
-                 Log.warning(Geonet.LDAP, ex.getMessage());
-             }
-@@ -98,6 +111,7 @@
-                 path = uidAttr + "="+ username +","+ usersDN +","+ baseDN;
-             }
- 
-+			// (Re)bind against the directory as the actual user.
- 			DirContext dc   = LDAPUtil.openContext(getUrl(), path, password);
- 
- 			Map<String, ? extends List<Object>> attr = LDAPUtil.getNodeInfo(dc, path);
-@@ -179,11 +193,14 @@
- 	//--------------------------------------------------------------------------
- 
- 	private boolean use;
-+	private boolean anonBind ; 
- 	private String  host;
- 	private Integer port;
- 	private String  defProfile;
- 	private String  baseDN;
- 	private String  usersDN;
-+    private String  bindDN ; 
-+	private String  bindPW ; 
- 	private String  nameAttr;
- 	private String  profileAttr;
- 	private String  emailAttr;
 Index: web/src/main/java/org/fao/geonet/services/login/LDAPUtil.java
 ===================================================================
 --- web/src/main/java/org/fao/geonet/services/login/LDAPUtil.java	(revision 9269)
@@ -136,3 +400,59 @@ Index: web/src/main/java/org/fao/geonet/services/login/LDAPUtil.java
  		}
  	}
  
+Index: web/src/main/java/org/fao/geonet/services/login/LDAPContext.java
+===================================================================
+--- web/src/main/java/org/fao/geonet/services/login/LDAPContext.java	(revision 9269)
++++ web/src/main/java/org/fao/geonet/services/login/LDAPContext.java	(working copy)
+@@ -53,6 +53,9 @@
+ 		defProfile    = sm.getValue      (prefix +"/defaultProfile");
+ 		baseDN        = sm.getValue      (prefix +"/distinguishedNames/base");
+ 		usersDN       = sm.getValue      (prefix +"/distinguishedNames/users");
++        anonBind      = sm.getValueAsBool(prefix +"/anonBind") ; 
++        bindDN        = sm.getValue      (prefix +"/bind/bindDn") ; 
++        bindPW        = sm.getValue      (prefix +"/bind/bindPw") ; 
+ 		nameAttr      = sm.getValue      (prefix +"/userAttribs/name");
+ 		profileAttr   = sm.getValue      (prefix +"/userAttribs/profile");
+ 		emailAttr     = "mail";  //TODO make it configurable
+@@ -89,7 +92,17 @@
+             String path = null;
+ 
+             try {
+-                path = LDAPUtil.findUserDN(getUrl(), uidFilter, usersBaseDN);
++				if (anonBind) { 
++					// if the directory allows anonymous searches, don't bother
++					// providing credentials.
++					path = LDAPUtil.findUserDN(getUrl(), uidFilter, usersBaseDN);
++				}
++				else
++				{
++					// search the directory using the credentials provided
++					// in the configuration.
++					path = LDAPUtil.findUserDN(getUrl(), uidFilter, usersBaseDN, bindDN, bindPW) ; 
++				}
+             } catch (NamingException ex) {
+                 Log.warning(Geonet.LDAP, ex.getMessage());
+             }
+@@ -98,6 +111,7 @@
+                 path = uidAttr + "="+ username +","+ usersDN +","+ baseDN;
+             }
+ 
++			// (Re)bind against the directory as the actual user.
+ 			DirContext dc   = LDAPUtil.openContext(getUrl(), path, password);
+ 
+ 			Map<String, ? extends List<Object>> attr = LDAPUtil.getNodeInfo(dc, path);
+@@ -179,11 +193,14 @@
+ 	//--------------------------------------------------------------------------
+ 
+ 	private boolean use;
++	private boolean anonBind ; 
+ 	private String  host;
+ 	private Integer port;
+ 	private String  defProfile;
+ 	private String  baseDN;
+ 	private String  usersDN;
++    private String  bindDN ; 
++	private String  bindPW ; 
+ 	private String  nameAttr;
+ 	private String  profileAttr;
+ 	private String  emailAttr;
