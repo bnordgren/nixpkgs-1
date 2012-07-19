@@ -1,29 +1,3 @@
-Index: web/src/main/webapp/xsl/xml/config.xsl
-===================================================================
---- web/src/main/webapp/xsl/xml/config.xsl	(revision 9269)
-+++ web/src/main/webapp/xsl/xml/config.xsl	(working copy)
-@@ -25,6 +25,7 @@
- 		<xsl:variable name="ldapLogin"  select="$ldap/login/children"/>
- 		<xsl:variable name="ldapDisNam" select="$ldap/distinguishedNames/children"/>
- 		<xsl:variable name="ldapUsrAtt" select="$ldap/userAttribs/children"/>
-+		<xsl:variable name="ldapBind"   select="$ldap/bind/children"/>
- 		<xsl:variable name="userSelfRegistration" select="children/userSelfRegistration/children"/>
- 		<xsl:variable name="clickablehyperlinks" select="children/clickablehyperlinks/children"/>		
- 		<xsl:variable name="localrating" select="children/localrating/children"/>		
-@@ -170,7 +171,13 @@
- 				<distinguishedNames>
- 					<base><xsl:value-of select="$ldapDisNam/base/value"/></base>
- 					<users><xsl:value-of select="$ldapDisNam/users/value"/></users>
-+					<subtree><xsl:value-of select="$ldapDisNam/subtree/value"/></subtree>
- 				</distinguishedNames>
-+				<anonBind><xsl:value-of select="$ldap/anonBind/value" /></anonBind>
-+				<bind>
-+					<bindDn><xsl:value-of select="$ldapBind/bindDn/value"/></bindDn>
-+					<bindPw><xsl:value-of select="$ldapBind/bindPw/value"/></bindPw>
-+				</bind>
- 				<userAttribs>
- 					<name><xsl:value-of select="$ldapUsrAtt/name/value"/></name>
- 					<profile><xsl:value-of select="$ldapUsrAtt/profile/value"/></profile>
 Index: web/src/main/webapp/xsl/config/config.xsl
 ===================================================================
 --- web/src/main/webapp/xsl/config/config.xsl	(revision 9269)
@@ -84,6 +58,32 @@ Index: web/src/main/webapp/xsl/config/config.xsl
  	<xsl:template name="ldapUserAttribs">
  		<table>
  			<tr>
+Index: web/src/main/webapp/xsl/xml/config.xsl
+===================================================================
+--- web/src/main/webapp/xsl/xml/config.xsl	(revision 9269)
++++ web/src/main/webapp/xsl/xml/config.xsl	(working copy)
+@@ -25,6 +25,7 @@
+ 		<xsl:variable name="ldapLogin"  select="$ldap/login/children"/>
+ 		<xsl:variable name="ldapDisNam" select="$ldap/distinguishedNames/children"/>
+ 		<xsl:variable name="ldapUsrAtt" select="$ldap/userAttribs/children"/>
++		<xsl:variable name="ldapBind"   select="$ldap/bind/children"/>
+ 		<xsl:variable name="userSelfRegistration" select="children/userSelfRegistration/children"/>
+ 		<xsl:variable name="clickablehyperlinks" select="children/clickablehyperlinks/children"/>		
+ 		<xsl:variable name="localrating" select="children/localrating/children"/>		
+@@ -170,7 +171,13 @@
+ 				<distinguishedNames>
+ 					<base><xsl:value-of select="$ldapDisNam/base/value"/></base>
+ 					<users><xsl:value-of select="$ldapDisNam/users/value"/></users>
++					<subtree><xsl:value-of select="$ldapDisNam/subtree/value"/></subtree>
+ 				</distinguishedNames>
++				<anonBind><xsl:value-of select="$ldap/anonBind/value" /></anonBind>
++				<bind>
++					<bindDn><xsl:value-of select="$ldapBind/bindDn/value"/></bindDn>
++					<bindPw><xsl:value-of select="$ldapBind/bindPw/value"/></bindPw>
++				</bind>
+ 				<userAttribs>
+ 					<name><xsl:value-of select="$ldapUsrAtt/name/value"/></name>
+ 					<profile><xsl:value-of select="$ldapUsrAtt/profile/value"/></profile>
 Index: web/src/main/webapp/scripts/config/view.js
 ===================================================================
 --- web/src/main/webapp/scripts/config/view.js	(revision 9269)
@@ -185,57 +185,11 @@ Index: web/src/main/webapp/loc/en/xml/config.xml
  	</tips>
  	
  </strings>
-Index: web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-sqlserver.sql
-===================================================================
---- web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-sqlserver.sql	(revision 9269)
-+++ web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-sqlserver.sql	(working copy)
-@@ -8902,6 +8902,8 @@
- INSERT INTO Settings VALUES (85,80,'uidAttr','uid');
- INSERT INTO Settings VALUES (86,80,'distinguishedNames',NULL);
- INSERT INTO Settings VALUES (87,80,'userAttribs',NULL);
-+INSERT INTO Settings VALUES (88,80,'anonBind','true');
-+INSERT INTO Settings VALUES (89,80,'bind',NULL);
- INSERT INTO Settings VALUES (90,1,'selectionmanager',NULL);
- INSERT INTO Settings VALUES (91,90,'maxrecords','1000');
- INSERT INTO Settings VALUES (100,86,'base','dc=fao,dc=org');
-@@ -8912,6 +8914,9 @@
- INSERT INTO Settings VALUES (121,120,'enable','true');
- INSERT INTO Settings VALUES (122,120,'contactId',NULL);
- INSERT INTO Settings VALUES (131,120,'metadataPublic','false');
-+INSERT INTO Settings VALUES (140,89,'bindDn','cn=fake.name,ou=people,dc=fao,dc=org');
-+INSERT INTO Settings VALUES (141,89,'bindPw','fake_password');
-+INSERT INTO Settings VALUES (150,80,'subtree','false');
- INSERT INTO Settings VALUES (170,1,'shib',NULL);
- INSERT INTO Settings VALUES (171,170,'use','false');
- INSERT INTO Settings VALUES (172,170,'path','/geonetwork/srv/en/shib.user.login');
-Index: web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-postgis.sql
-===================================================================
---- web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-postgis.sql	(revision 9269)
-+++ web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-postgis.sql	(working copy)
-@@ -8883,6 +8883,8 @@
- INSERT INTO Settings VALUES (85,80,'uidAttr','uid');
- INSERT INTO Settings VALUES (86,80,'distinguishedNames',NULL);
- INSERT INTO Settings VALUES (87,80,'userAttribs',NULL);
-+INSERT INTO Settings VALUES (88,80,'anonBind','true');
-+INSERT INTO Settings VALUES (89,80,'bind',NULL);
- INSERT INTO Settings VALUES (90,1,'selectionmanager',NULL);
- INSERT INTO Settings VALUES (91,90,'maxrecords','1000');
- INSERT INTO Settings VALUES (100,86,'base','dc=fao,dc=org');
-@@ -8893,6 +8895,9 @@
- INSERT INTO Settings VALUES (121,120,'enable','true');
- INSERT INTO Settings VALUES (122,120,'contactId',NULL);
- INSERT INTO Settings VALUES (131,120,'metadataPublic','false');
-+INSERT INTO Settings VALUES (140,89,'bindDn','cn=fake.name,ou=people,dc=fao,dc=org');
-+INSERT INTO Settings VALUES (141,89,'bindPw','fake_password');
-+INSERT INTO Settings VALUES (150,80,'subtree','false');
- INSERT INTO Settings VALUES (170,1,'shib',NULL);
- INSERT INTO Settings VALUES (171,170,'use','false');
- INSERT INTO Settings VALUES (172,170,'path','/geonetwork/srv/en/shib.user.login');
 Index: web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-mckoi.sql
 ===================================================================
 --- web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-mckoi.sql	(revision 9269)
 +++ web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-mckoi.sql	(working copy)
-@@ -8900,6 +8900,8 @@
+@@ -8900,16 +8900,21 @@
  INSERT INTO Settings VALUES (85,80,'uidAttr','uid');
  INSERT INTO Settings VALUES (86,80,'distinguishedNames',NULL);
  INSERT INTO Settings VALUES (87,80,'userAttribs',NULL);
@@ -244,13 +198,16 @@ Index: web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-mckoi.sql
  INSERT INTO Settings VALUES (90,1,'selectionmanager',NULL);
  INSERT INTO Settings VALUES (91,90,'maxrecords','1000');
  INSERT INTO Settings VALUES (100,86,'base','dc=fao,dc=org');
-@@ -8910,6 +8912,9 @@
+ INSERT INTO Settings VALUES (101,86,'users','ou=people');
++INSERT INTO Settings VALUES (102,86,'subtree','false');
+ INSERT INTO Settings VALUES (110,87,'name','cn');
+ INSERT INTO Settings VALUES (112,87,'profile','profile');
+ INSERT INTO Settings VALUES (120,1,'csw',NULL);
  INSERT INTO Settings VALUES (121,120,'enable','true');
  INSERT INTO Settings VALUES (122,120,'contactId',NULL);
  INSERT INTO Settings VALUES (131,120,'metadataPublic','false');
 +INSERT INTO Settings VALUES (140,89,'bindDn','cn=fake.name,ou=people,dc=fao,dc=org');
 +INSERT INTO Settings VALUES (141,89,'bindPw','fake_password');
-+INSERT INTO Settings VALUES (150,80,'subtree','false');
  INSERT INTO Settings VALUES (170,1,'shib',NULL);
  INSERT INTO Settings VALUES (171,170,'use','false');
  INSERT INTO Settings VALUES (172,170,'path','/geonetwork/srv/en/shib.user.login');
@@ -258,7 +215,7 @@ Index: web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-mysql.sql
 ===================================================================
 --- web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-mysql.sql	(revision 9269)
 +++ web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-mysql.sql	(working copy)
-@@ -8901,6 +8901,8 @@
+@@ -8901,16 +8901,21 @@
  INSERT INTO Settings VALUES (85,80,'uidAttr','uid');
  INSERT INTO Settings VALUES (86,80,'distinguishedNames',NULL);
  INSERT INTO Settings VALUES (87,80,'userAttribs',NULL);
@@ -267,13 +224,16 @@ Index: web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-mysql.sql
  INSERT INTO Settings VALUES (90,1,'selectionmanager',NULL);
  INSERT INTO Settings VALUES (91,90,'maxrecords','1000');
  INSERT INTO Settings VALUES (100,86,'base','dc=fao,dc=org');
-@@ -8911,6 +8913,9 @@
+ INSERT INTO Settings VALUES (101,86,'users','ou=people');
++INSERT INTO Settings VALUES (102,86,'subtree','false');
+ INSERT INTO Settings VALUES (110,87,'name','cn');
+ INSERT INTO Settings VALUES (112,87,'profile','profile');
+ INSERT INTO Settings VALUES (120,1,'csw',NULL);
  INSERT INTO Settings VALUES (121,120,'enable','true');
  INSERT INTO Settings VALUES (122,120,'contactId',NULL);
  INSERT INTO Settings VALUES (131,120,'metadataPublic','false');
 +INSERT INTO Settings VALUES (140,89,'bindDn','cn=fake.name,ou=people,dc=fao,dc=org');
 +INSERT INTO Settings VALUES (141,89,'bindPw','fake_password');
-+INSERT INTO Settings VALUES (150,80,'subtree','false');
  INSERT INTO Settings VALUES (170,1,'shib',NULL);
  INSERT INTO Settings VALUES (171,170,'use','false');
  INSERT INTO Settings VALUES (172,170,'path','/geonetwork/srv/en/shib.user.login');
@@ -281,7 +241,7 @@ Index: web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-oracle.sql
 ===================================================================
 --- web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-oracle.sql	(revision 9269)
 +++ web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-oracle.sql	(working copy)
-@@ -8901,6 +8901,8 @@
+@@ -8901,16 +8901,21 @@
  INSERT INTO Settings VALUES (85,80,'uidAttr','uid');
  INSERT INTO Settings VALUES (86,80,'distinguishedNames',NULL);
  INSERT INTO Settings VALUES (87,80,'userAttribs',NULL);
@@ -290,13 +250,16 @@ Index: web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-oracle.sql
  INSERT INTO Settings VALUES (90,1,'selectionmanager',NULL);
  INSERT INTO Settings VALUES (91,90,'maxrecords','1000');
  INSERT INTO Settings VALUES (100,86,'base','dc=fao,dc=org');
-@@ -8911,6 +8913,9 @@
+ INSERT INTO Settings VALUES (101,86,'users','ou=people');
++INSERT INTO Settings VALUES (102,86,'subtree','false');
+ INSERT INTO Settings VALUES (110,87,'name','cn');
+ INSERT INTO Settings VALUES (112,87,'profile','profile');
+ INSERT INTO Settings VALUES (120,1,'csw',NULL);
  INSERT INTO Settings VALUES (121,120,'enable','true');
  INSERT INTO Settings VALUES (122,120,'contactId',NULL);
  INSERT INTO Settings VALUES (131,120,'metadataPublic','false');
 +INSERT INTO Settings VALUES (140,89,'bindDn','cn=fake.name,ou=people,dc=fao,dc=org');
 +INSERT INTO Settings VALUES (141,89,'bindPw','fake_password');
-+INSERT INTO Settings VALUES (150,80,'subtree','false');
  INSERT INTO Settings VALUES (170,1,'shib',NULL);
  INSERT INTO Settings VALUES (171,170,'use','false');
  INSERT INTO Settings VALUES (172,170,'path','/geonetwork/srv/en/shib.user.login');
@@ -304,7 +267,7 @@ Index: web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-postgres.sql
 ===================================================================
 --- web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-postgres.sql	(revision 9269)
 +++ web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-postgres.sql	(working copy)
-@@ -8883,6 +8883,8 @@
+@@ -8883,16 +8883,21 @@
  INSERT INTO Settings VALUES (85,80,'uidAttr','uid');
  INSERT INTO Settings VALUES (86,80,'distinguishedNames',NULL);
  INSERT INTO Settings VALUES (87,80,'userAttribs',NULL);
@@ -313,13 +276,16 @@ Index: web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-postgres.sql
  INSERT INTO Settings VALUES (90,1,'selectionmanager',NULL);
  INSERT INTO Settings VALUES (91,90,'maxrecords','1000');
  INSERT INTO Settings VALUES (100,86,'base','dc=fao,dc=org');
-@@ -8893,6 +8895,9 @@
+ INSERT INTO Settings VALUES (101,86,'users','ou=people');
++INSERT INTO Settings VALUES (102,86,'subtree','false');
+ INSERT INTO Settings VALUES (110,87,'name','cn');
+ INSERT INTO Settings VALUES (112,87,'profile','profile');
+ INSERT INTO Settings VALUES (120,1,'csw',NULL);
  INSERT INTO Settings VALUES (121,120,'enable','true');
  INSERT INTO Settings VALUES (122,120,'contactId',NULL);
  INSERT INTO Settings VALUES (131,120,'metadataPublic','false');
 +INSERT INTO Settings VALUES (140,89,'bindDn','cn=fake.name,ou=people,dc=fao,dc=org');
 +INSERT INTO Settings VALUES (141,89,'bindPw','fake_password');
-+INSERT INTO Settings VALUES (150,80,'subtree','false');
  INSERT INTO Settings VALUES (170,1,'shib',NULL);
  INSERT INTO Settings VALUES (171,170,'use','false');
  INSERT INTO Settings VALUES (172,170,'path','/geonetwork/srv/en/shib.user.login');
@@ -327,7 +293,7 @@ Index: web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-default.sql
 ===================================================================
 --- web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-default.sql	(revision 9269)
 +++ web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-default.sql	(working copy)
-@@ -8902,6 +8902,8 @@
+@@ -8902,16 +8902,21 @@
  INSERT INTO Settings VALUES (85,80,'uidAttr','uid');
  INSERT INTO Settings VALUES (86,80,'distinguishedNames',NULL);
  INSERT INTO Settings VALUES (87,80,'userAttribs',NULL);
@@ -336,13 +302,68 @@ Index: web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-default.sql
  INSERT INTO Settings VALUES (90,1,'selectionmanager',NULL);
  INSERT INTO Settings VALUES (91,90,'maxrecords','1000');
  INSERT INTO Settings VALUES (100,86,'base','dc=fao,dc=org');
-@@ -8912,6 +8914,9 @@
+ INSERT INTO Settings VALUES (101,86,'users','ou=people');
++INSERT INTO Settings VALUES (102,86,'subtree','false');
+ INSERT INTO Settings VALUES (110,87,'name','cn');
+ INSERT INTO Settings VALUES (112,87,'profile','profile');
+ INSERT INTO Settings VALUES (120,1,'csw',NULL);
  INSERT INTO Settings VALUES (121,120,'enable','true');
  INSERT INTO Settings VALUES (122,120,'contactId',NULL);
  INSERT INTO Settings VALUES (131,120,'metadataPublic','false');
 +INSERT INTO Settings VALUES (140,89,'bindDn','cn=fake.name,ou=people,dc=fao,dc=org');
 +INSERT INTO Settings VALUES (141,89,'bindPw','fake_password');
-+INSERT INTO Settings VALUES (150,80,'subtree','false');
+ INSERT INTO Settings VALUES (170,1,'shib',NULL);
+ INSERT INTO Settings VALUES (171,170,'use','false');
+ INSERT INTO Settings VALUES (172,170,'path','/geonetwork/srv/en/shib.user.login');
+Index: web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-sqlserver.sql
+===================================================================
+--- web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-sqlserver.sql	(revision 9269)
++++ web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-sqlserver.sql	(working copy)
+@@ -8902,16 +8902,21 @@
+ INSERT INTO Settings VALUES (85,80,'uidAttr','uid');
+ INSERT INTO Settings VALUES (86,80,'distinguishedNames',NULL);
+ INSERT INTO Settings VALUES (87,80,'userAttribs',NULL);
++INSERT INTO Settings VALUES (88,80,'anonBind','true');
++INSERT INTO Settings VALUES (89,80,'bind',NULL);
+ INSERT INTO Settings VALUES (90,1,'selectionmanager',NULL);
+ INSERT INTO Settings VALUES (91,90,'maxrecords','1000');
+ INSERT INTO Settings VALUES (100,86,'base','dc=fao,dc=org');
+ INSERT INTO Settings VALUES (101,86,'users','ou=people');
++INSERT INTO Settings VALUES (102,86,'subtree','false');
+ INSERT INTO Settings VALUES (110,87,'name','cn');
+ INSERT INTO Settings VALUES (112,87,'profile','profile');
+ INSERT INTO Settings VALUES (120,1,'csw',NULL);
+ INSERT INTO Settings VALUES (121,120,'enable','true');
+ INSERT INTO Settings VALUES (122,120,'contactId',NULL);
+ INSERT INTO Settings VALUES (131,120,'metadataPublic','false');
++INSERT INTO Settings VALUES (140,89,'bindDn','cn=fake.name,ou=people,dc=fao,dc=org');
++INSERT INTO Settings VALUES (141,89,'bindPw','fake_password');
+ INSERT INTO Settings VALUES (170,1,'shib',NULL);
+ INSERT INTO Settings VALUES (171,170,'use','false');
+ INSERT INTO Settings VALUES (172,170,'path','/geonetwork/srv/en/shib.user.login');
+Index: web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-postgis.sql
+===================================================================
+--- web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-postgis.sql	(revision 9269)
++++ web/src/main/webapp/WEB-INF/classes/setup/sql/data/data-db-postgis.sql	(working copy)
+@@ -8883,16 +8883,21 @@
+ INSERT INTO Settings VALUES (85,80,'uidAttr','uid');
+ INSERT INTO Settings VALUES (86,80,'distinguishedNames',NULL);
+ INSERT INTO Settings VALUES (87,80,'userAttribs',NULL);
++INSERT INTO Settings VALUES (88,80,'anonBind','true');
++INSERT INTO Settings VALUES (89,80,'bind',NULL);
+ INSERT INTO Settings VALUES (90,1,'selectionmanager',NULL);
+ INSERT INTO Settings VALUES (91,90,'maxrecords','1000');
+ INSERT INTO Settings VALUES (100,86,'base','dc=fao,dc=org');
+ INSERT INTO Settings VALUES (101,86,'users','ou=people');
++INSERT INTO Settings VALUES (102,86,'subtree','false');
+ INSERT INTO Settings VALUES (110,87,'name','cn');
+ INSERT INTO Settings VALUES (112,87,'profile','profile');
+ INSERT INTO Settings VALUES (120,1,'csw',NULL);
+ INSERT INTO Settings VALUES (121,120,'enable','true');
+ INSERT INTO Settings VALUES (122,120,'contactId',NULL);
+ INSERT INTO Settings VALUES (131,120,'metadataPublic','false');
++INSERT INTO Settings VALUES (140,89,'bindDn','cn=fake.name,ou=people,dc=fao,dc=org');
++INSERT INTO Settings VALUES (141,89,'bindPw','fake_password');
  INSERT INTO Settings VALUES (170,1,'shib',NULL);
  INSERT INTO Settings VALUES (171,170,'use','false');
  INSERT INTO Settings VALUES (172,170,'path','/geonetwork/srv/en/shib.user.login');
@@ -350,97 +371,36 @@ Index: web/src/main/java/org/fao/geonet/services/config/Set.java
 ===================================================================
 --- web/src/main/java/org/fao/geonet/services/config/Set.java	(revision 9269)
 +++ web/src/main/java/org/fao/geonet/services/config/Set.java	(working copy)
-@@ -156,6 +156,9 @@
-         new ConfigEntry(ConfigEntry.Type.STRING, true,  "ldap/uidAttr",                 "system/ldap/uidAttr"),        
- 		new ConfigEntry(ConfigEntry.Type.STRING, true,  "ldap/distinguishedNames/base", "system/ldap/distinguishedNames/base"),
- 		new ConfigEntry(ConfigEntry.Type.STRING, true,  "ldap/distinguishedNames/users","system/ldap/distinguishedNames/users"),
-+		new ConfigEntry(ConfigEntry.Type.BOOL,   true,  "ldap/anonBind",                "system/ldap/anonBind"),
-+		new ConfigEntry(ConfigEntry.Type.STRING, false, "ldap/bind/bindDn",             "system/ldap/bind/bindDn"),
-+		new ConfigEntry(ConfigEntry.Type.STRING, false, "ldap/bind/bindPw",             "system/ldap/bind/bindPw"),
- 		new ConfigEntry(ConfigEntry.Type.STRING, true,  "ldap/userAttribs/name",        "system/ldap/userAttribs/name"),
- 		new ConfigEntry(ConfigEntry.Type.STRING, true,  "ldap/userAttribs/password",    "system/ldap/userAttribs/password"),
- 		new ConfigEntry(ConfigEntry.Type.STRING, false, "ldap/userAttribs/profile",     "system/ldap/userAttribs/profile"),
-Index: web/src/main/java/org/fao/geonet/services/login/LDAPUtil.java
-===================================================================
---- web/src/main/java/org/fao/geonet/services/login/LDAPUtil.java	(revision 9269)
-+++ web/src/main/java/org/fao/geonet/services/login/LDAPUtil.java	(working copy)
-@@ -33,6 +33,7 @@
- import javax.naming.directory.Attributes;
- import javax.naming.directory.DirContext;
- import javax.naming.directory.InitialDirContext;
-+import javax.naming.directory.SearchControls;
- import javax.naming.directory.SearchResult;
+@@ -149,16 +149,20 @@
  
- import java.util.ArrayList;
-@@ -74,17 +75,54 @@
- 		}
- 	}
+ 		new ConfigEntry(ConfigEntry.Type.STRING, true,  "removedMetadata/dir",      "system/removedMetadata/dir"),
  
--	public static String findUserDN(String url, String uidFilter, String userDN) throws NamingException
-+	public static String findUserDN(String url, String uidFilter, String userDN, SearchControls scope, String bindDN, String bindPW) throws NamingException
- 	{
-+		DirContext connection = null ; 
-+		try 
-+		{
-+			connection = openContext(url, bindDN, bindPW) ; 
-+		} 
-+		catch (NamingException e) 
-+		{
-+			Log.warning(Geonet.LDAP, "Cannot bind to directory using : " + bindDN) ; 
-+			throw e ; 
-+		}
-+
- 		try
- 		{
-+			return findUserDN(connection, scope, uidFilter, userDN) ; 
-+		}
-+		catch(NamingException e)
-+		{
-+			// we don't have anything to add to the log message emitted 
-+			// by the function in the try block.
-+			throw e;
-+		}
-+	}
-+
-+	public static String findUserDN(String url, String uidFilter, String userDN, SearchControls scope) throws NamingException
-+	{
-+		try
-+		{
- 			Hashtable<String,String> env = new Hashtable<String,String>();
- 			DirContext dc = new InitialDirContext(env);
- 			DirContext connection = (DirContext) dc.lookup(url);
+-		new ConfigEntry(ConfigEntry.Type.BOOL,   true,  "ldap/use",                     "system/ldap/use"),
+-		new ConfigEntry(ConfigEntry.Type.STRING, false, "ldap/host",                    "system/ldap/host"),
+-		new ConfigEntry(ConfigEntry.Type.INT,    false, "ldap/port",                    "system/ldap/port"),
+-		new ConfigEntry(ConfigEntry.Type.STRING, true,  "ldap/defaultProfile",          "system/ldap/defaultProfile"),
+-        new ConfigEntry(ConfigEntry.Type.STRING, true,  "ldap/uidAttr",                 "system/ldap/uidAttr"),        
+-		new ConfigEntry(ConfigEntry.Type.STRING, true,  "ldap/distinguishedNames/base", "system/ldap/distinguishedNames/base"),
+-		new ConfigEntry(ConfigEntry.Type.STRING, true,  "ldap/distinguishedNames/users","system/ldap/distinguishedNames/users"),
+-		new ConfigEntry(ConfigEntry.Type.STRING, true,  "ldap/userAttribs/name",        "system/ldap/userAttribs/name"),
+-		new ConfigEntry(ConfigEntry.Type.STRING, true,  "ldap/userAttribs/password",    "system/ldap/userAttribs/password"),
+-		new ConfigEntry(ConfigEntry.Type.STRING, false, "ldap/userAttribs/profile",     "system/ldap/userAttribs/profile"),
++		new ConfigEntry(ConfigEntry.Type.BOOL,   true,  "ldap/use",                       "system/ldap/use"),
++		new ConfigEntry(ConfigEntry.Type.STRING, false, "ldap/host",                      "system/ldap/host"),
++		new ConfigEntry(ConfigEntry.Type.INT,    false, "ldap/port",                      "system/ldap/port"),
++		new ConfigEntry(ConfigEntry.Type.STRING, true,  "ldap/defaultProfile",            "system/ldap/defaultProfile"),
++        new ConfigEntry(ConfigEntry.Type.STRING, true,  "ldap/uidAttr",                   "system/ldap/uidAttr"),        
++		new ConfigEntry(ConfigEntry.Type.STRING, true,  "ldap/distinguishedNames/base",   "system/ldap/distinguishedNames/base"),
++		new ConfigEntry(ConfigEntry.Type.STRING, true,  "ldap/distinguishedNames/users",  "system/ldap/distinguishedNames/users"),
++		new ConfigEntry(ConfigEntry.Type.BOOL,   true,  "ldap/distinguishedNames/subtree","system/ldap/distinguishedNames/subtree"),
++		new ConfigEntry(ConfigEntry.Type.BOOL,   true,  "ldap/anonBind",                  "system/ldap/anonBind"),
++		new ConfigEntry(ConfigEntry.Type.STRING, false, "ldap/bind/bindDn",               "system/ldap/bind/bindDn"),
++		new ConfigEntry(ConfigEntry.Type.STRING, false, "ldap/bind/bindPw",               "system/ldap/bind/bindPw"),
++		new ConfigEntry(ConfigEntry.Type.STRING, true,  "ldap/userAttribs/name",          "system/ldap/userAttribs/name"),
++		new ConfigEntry(ConfigEntry.Type.STRING, true,  "ldap/userAttribs/password",      "system/ldap/userAttribs/password"),
++		new ConfigEntry(ConfigEntry.Type.STRING, false, "ldap/userAttribs/profile",       "system/ldap/userAttribs/profile"),
  
--			NamingEnumeration<SearchResult> results = connection.search(userDN, uidFilter, null);
-+			return findUserDN(connection, scope, uidFilter, userDN) ; 
-+		}
-+		catch(NamingException e)
-+		{
-+			throw e;
-+		}
-+	}
- 
-+	private static String findUserDN(DirContext connection, SearchControls scope, String uidFilter, String userDN) throws NamingException
-+	{
-+		try
-+		{
-+			NamingEnumeration<SearchResult> results = connection.search(userDN, uidFilter, scope);
- 
-+
- 			String usersRealDN = "";
- 			while (results.hasMore()) {
- 				usersRealDN = (results.nextElement().getNameInNamespace());
-@@ -92,9 +130,10 @@
- 
- 			return usersRealDN;
- 		}
--		catch(NamingException e)
-+		catch (NamingException e)
- 		{
--			throw e;
-+			Log.warning(Geonet.LDAP, "Unable to locate user with filter : " + uidFilter) ;
-+			throw e ; 
- 		}
- 	}
+ 		new ConfigEntry(ConfigEntry.Type.BOOL,   true,  "userSelfRegistration/enable",  "system/userSelfRegistration/enable"),
  
 Index: web/src/main/java/org/fao/geonet/services/login/LDAPContext.java
 ===================================================================
@@ -529,3 +489,85 @@ Index: web/src/main/java/org/fao/geonet/services/login/LDAPContext.java
  
  	private HashSet<String> profiles = new HashSet<String>();
  }
+Index: web/src/main/java/org/fao/geonet/services/login/LDAPUtil.java
+===================================================================
+--- web/src/main/java/org/fao/geonet/services/login/LDAPUtil.java	(revision 9269)
++++ web/src/main/java/org/fao/geonet/services/login/LDAPUtil.java	(working copy)
+@@ -33,6 +33,7 @@
+ import javax.naming.directory.Attributes;
+ import javax.naming.directory.DirContext;
+ import javax.naming.directory.InitialDirContext;
++import javax.naming.directory.SearchControls;
+ import javax.naming.directory.SearchResult;
+ 
+ import java.util.ArrayList;
+@@ -74,17 +75,54 @@
+ 		}
+ 	}
+ 
+-	public static String findUserDN(String url, String uidFilter, String userDN) throws NamingException
++	public static String findUserDN(String url, String uidFilter, String userDN, SearchControls scope, String bindDN, String bindPW) throws NamingException
+ 	{
++		DirContext connection = null ; 
++		try 
++		{
++			connection = openContext(url, bindDN, bindPW) ; 
++		} 
++		catch (NamingException e) 
++		{
++			Log.warning(Geonet.LDAP, "Cannot bind to directory using : " + bindDN) ; 
++			throw e ; 
++		}
++
+ 		try
+ 		{
++			return findUserDN(connection, scope, uidFilter, userDN) ; 
++		}
++		catch(NamingException e)
++		{
++			// we don't have anything to add to the log message emitted 
++			// by the function in the try block.
++			throw e;
++		}
++	}
++
++	public static String findUserDN(String url, String uidFilter, String userDN, SearchControls scope) throws NamingException
++	{
++		try
++		{
+ 			Hashtable<String,String> env = new Hashtable<String,String>();
+ 			DirContext dc = new InitialDirContext(env);
+ 			DirContext connection = (DirContext) dc.lookup(url);
+ 
+-			NamingEnumeration<SearchResult> results = connection.search(userDN, uidFilter, null);
++			return findUserDN(connection, scope, uidFilter, userDN) ; 
++		}
++		catch(NamingException e)
++		{
++			throw e;
++		}
++	}
+ 
++	private static String findUserDN(DirContext connection, SearchControls scope, String uidFilter, String userDN) throws NamingException
++	{
++		try
++		{
++			NamingEnumeration<SearchResult> results = connection.search(userDN, uidFilter, scope);
+ 
++
+ 			String usersRealDN = "";
+ 			while (results.hasMore()) {
+ 				usersRealDN = (results.nextElement().getNameInNamespace());
+@@ -92,9 +130,10 @@
+ 
+ 			return usersRealDN;
+ 		}
+-		catch(NamingException e)
++		catch (NamingException e)
+ 		{
+-			throw e;
++			Log.warning(Geonet.LDAP, "Unable to locate user with filter : " + uidFilter) ;
++			throw e ; 
+ 		}
+ 	}
+ 
