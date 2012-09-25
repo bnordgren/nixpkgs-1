@@ -2,8 +2,8 @@
 
 cabal.mkDerivation (self: {
   pname = "async";
-  version = "2.0.1.0";
-  sha256 = "00yfxp18zhfjnxz0bqzym0ikarzsa75yw5pi33dsyv9kivra3k5q";
+  version = "2.0.1.3";
+  sha256 = "1rbjr6xw5sp8npw17fxg0942kikssv2hyci2sy26r0na98483mkh";
   buildDepends = [ stm ];
   meta = {
     homepage = "https://github.com/simonmar/async";
