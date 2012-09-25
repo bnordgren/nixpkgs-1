@@ -8735,8 +8735,9 @@ let
 
   martyr = callPackage ../development/libraries/martyr { };
 
-  maven = maven3;
-  maven3 = callPackage ../misc/maven { jdk = openjdk; };
+  maven = callPackage ../misc/maven/maven-1.0.nix { };
+  maven2 = callPackage ../misc/maven { };
+  maven3 = callPackage ../misc/maven/3.0.nix { };
 
   mess = callPackage ../misc/emulators/mess {
     inherit (pkgs.gnome) GConf;
