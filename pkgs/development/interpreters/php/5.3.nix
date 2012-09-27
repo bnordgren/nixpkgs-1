@@ -32,6 +32,11 @@ composableDerivation {} ( fixed : let inherit (fixed.fixed) version; in {
         buildInputs = [curl openssl];
       };
       
+      ldap = {
+        configureFlags = ["--with-ldap=${openldap}" "--with-ldap-sasl=${cyrus_sasl}"];
+        buildInputs = [openldap cyrus_sasl];
+      };
+      
       zlib = {
         configureFlags = ["--with-zlib=${args.zlib}"];
         buildInputs = [zlib];
@@ -138,6 +143,7 @@ composableDerivation {} ( fixed : let inherit (fixed.fixed) version; in {
     opensslSupport = config.php.openssl or true;
     mbstringSupport = config.php.mbstring or true;
     gdSupport = config.php.gd or true;
+    ldapSupport = config.php.openldap or true; 
   };
 
   configurePhase = ''

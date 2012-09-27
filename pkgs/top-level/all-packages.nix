@@ -2746,7 +2746,7 @@ let
   php5_3 = makeOverridable (import ../development/interpreters/php/5.3.nix) {
     inherit
       stdenv fetchurl lib composableDerivation autoconf automake
-      flex bison apacheHttpd mysql libxml2 readline
+      flex bison apacheHttpd mysql libxml2 readline openldap cyrus_sasl
       zlib curl gd postgresql openssl pkgconfig sqlite config libiconv libjpeg libpng;
   };
 
@@ -5254,6 +5254,7 @@ let
     sslSupport = true;
   });
 
+  rxdrupal = callPackage ../servers/http/rxdrupal { };
   geonetwork = callPackage ../servers/http/geonetwork { };
   geoserver  = callPackage ../servers/http/geoserver { };
   geoserverPyramid = callPackage ../servers/http/geoserver/pyramid.nix { } ;
