@@ -1791,6 +1791,16 @@ let
 
   ipython = callPackage ../shells/ipython { };
 
+  rssh = callPackage ../shells/rssh {
+    supportScp = true ; 
+    supportSftp = true ; 
+    supportRsync = false ; 
+  };
+
+  rssh_rsync = appendToName "with-rsync" (rssh.override {
+    supportRsync = true ; 
+  }); 
+
   tcsh = callPackage ../shells/tcsh { };
 
   rush = callPackage ../shells/rush { };
