@@ -1,23 +1,23 @@
 { stdenv, fetchurl, pkgconfig, intltool, gperf, libcap, dbus, kmod
 , xz, pam, acl, cryptsetup, libuuid, m4, utillinux, usbutils, pciutils
-, glib, kbd
+, glib, kbd, libxslt, coreutils
 }:
 
 assert stdenv.gcc.libc or null != null;
 
 stdenv.mkDerivation rec {
-  name = "systemd-188";
+  name = "systemd-194";
 
   src = fetchurl {
     url = "http://www.freedesktop.org/software/systemd/${name}.tar.xz";
-    sha256 = "0nr1cg1mizbwcafjcqw3c30mx6xdv596jpbgjlxr6myvc5hfsfg8";
+    sha256 = "0cgnnl6kqaz3als5y9g8jvsvbs4c8ccp0vl4s1g8rwk69w2cwxd2";
   };
 
-  patches = [ ./fail-after-reaching-respawn-limit.patch ];
+  patches = [ ./reexec.patch ];
 
   buildInputs =
     [ pkgconfig intltool gperf libcap dbus kmod xz pam acl
-      /* cryptsetup */ libuuid m4 usbutils pciutils glib
+      /* cryptsetup */ libuuid m4 usbutils pciutils glib libxslt
     ];
 
   configureFlags =
@@ -75,7 +75,12 @@ stdenv.mkDerivation rec {
       for i in init halt poweroff runlevel reboot shutdown; do
         ln -s $out/bin/systemctl $out/sbin/$i
       done
-    '';
+
+      # Fix reference to /bin/false in the D-Bus services.
+      for i in $out/share/dbus-1/system-services/*.service; do
+        substituteInPlace $i --replace /bin/false ${coreutils}/bin/false
+      done
+    ''; # */
 
   enableParallelBuilding = true;
 
@@ -88,8 +93,9 @@ stdenv.mkDerivation rec {
   passthru.interfaceVersion = 2;
 
   meta = {
-    homepage = http://www.freedesktop.org/wiki/Software/systemd;
+    homepage = "http://www.freedesktop.org/wiki/Software/systemd";
     description = "A system and service manager for Linux";
     platforms = stdenv.lib.platforms.linux;
+    maintainers = [ stdenv.lib.maintainers.eelco stdenv.lib.maintainers.simons ];
   };
 }

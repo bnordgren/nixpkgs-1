@@ -1,13 +1,13 @@
 { stdenv, runCommand, nodejs, neededNatives}:
 
-args @ { src, deps ? [], nativeDeps ? [], flags ? [], ... }:
+args @ { src, deps ? [], flags ? [], ... }:
 
 with stdenv.lib;
 
 let npmFlags = concatStringsSep " " (map (v: "--${v}") flags);
     sources = runCommand "node-sources" {} ''
       tar xf ${nodejs.src}
-      mv node-v${nodejs.version} $out
+      mv *node* $out
     '';
 
 in
@@ -31,7 +31,6 @@ stdenv.mkDerivation ({
   '';
 
   buildNativeInputs = neededNatives;
-  buildInputs = nativeDeps;
 
   installPhase = ''
     runHook preInstall
