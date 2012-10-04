@@ -1,5 +1,5 @@
 {stdenv, fetchurl, supportScp ? true, supportSftp ? true, supportRsync ? false,
- openssh ? null, rsync ? null, ...}:
+ openssh ? null, rsync ? null, umask ? "022", ...}:
 
 assert (supportScp || supportSftp) -> (openssh != null) ; 
 assert (supportRsync) -> (rsync != null) ; 
@@ -46,7 +46,7 @@ stdenv.mkDerivation rec {
   postInstall = ''
     rm $out/etc/rssh.conf
     echo "logfacility=LOG_USER" > $out/etc/rssh.conf
-    echo "umask=022" >> $out/etc/rssh.conf
+    echo "umask=${umask}" >> $out/etc/rssh.conf
     ${stdenv.lib.optionalString supportScp ''echo "allowscp" >> $out/etc/rssh.conf''}
     ${stdenv.lib.optionalString supportSftp ''echo "allowsftp" >> $out/etc/rssh.conf''}
     ${stdenv.lib.optionalString supportRsync ''echo "allowrsync" >> $out/etc/rssh.conf''}
