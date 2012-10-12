@@ -2,14 +2,14 @@
 , dataLens, dataLensTemplate, directoryTree, filepath, hashable
 , heist, logict, MonadCatchIOTransformers, mtl, mwcRandom
 , pwstoreFast, snapCore, snapServer, stm, syb, text, time
-, transformers, unorderedContainers, utf8String, vector
-, vectorAlgorithms, xmlhtml
+, transformers, unorderedContainers, vector, vectorAlgorithms
+, xmlhtml
 }:
 
 cabal.mkDerivation (self: {
   pname = "snap";
-  version = "0.9.2.1";
-  sha256 = "0gxnkr6icx2g16w3ab54cqy4x15xj6y9cs6qv8dg0xamm7kyyfhl";
+  version = "0.9.2.2";
+  sha256 = "1ql9c8b9arcd8zwlwsiipl4diah87sp339ljc5bc7yls1g4d9zsw";
   isLibrary = true;
   isExecutable = true;
   buildDepends = [
@@ -17,7 +17,7 @@ cabal.mkDerivation (self: {
     dataLensTemplate directoryTree filepath hashable heist logict
     MonadCatchIOTransformers mtl mwcRandom pwstoreFast snapCore
     snapServer stm syb text time transformers unorderedContainers
-    utf8String vector vectorAlgorithms xmlhtml
+    vector vectorAlgorithms xmlhtml
   ];
   meta = {
     homepage = "http://snapframework.com/";

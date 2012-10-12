@@ -33,11 +33,13 @@ let pythonPackages = python.modules // rec {
 
 
   afew = buildPythonPackage rec {
-    name = "afew-1.0pre";
+    rev = "6bb3915636aaf86f046a017ffffd9a4ef395e199";
+    name = "afew-1.0_${rev}";
+
     src = fetchurl {
-      url = "https://github.com/teythoon/afew/tarball/master";
+      url = "https://github.com/teythoon/afew/tarball/${rev}";
       name = "${name}.tar.bz";
-      sha256 = "949710f8dcf503f42f2a2d77ea71e48ccf70155a764f75ad29cc93edc120809b";
+      sha256 = "74926d9ddfa69534cfbd08a82f0acccab2c649558062654d5d2ff2999d201384";
     };
 
     propagatedBuildInputs = [ notmuch pkgs.dbacl ];
@@ -59,12 +61,13 @@ let pythonPackages = python.modules // rec {
 
 
   alot = buildPythonPackage rec {
-    name = "alot-0.3.1";
+    rev = "27c91058c49d8755d2813d5b78094f40f36ec905";
+    name = "alot-0.3.3_${rev}";
 
     src = fetchurl {
-      url = "https://github.com/pazz/alot/tarball/master";
+      url = "https://github.com/pazz/alot/tarball/${rev}";
       name = "${name}.tar.bz";
-      sha256 = "06683de36688615d3d526198c93133e1131897c888ffa31e83f1ad292eae57af";
+      sha256 = "67e1033aa91818b7fa4c3911430a4da0f73aca92c3e3832c010038cbf263eec2";
     };
 
     doCheck = false;
@@ -73,7 +76,7 @@ let pythonPackages = python.modules // rec {
 
     postInstall = ''
       wrapProgram $out/bin/alot \
-        --prefix LD_LIBRARY_PATH : ${pkgs.notmuch}/lib:${pkgs.file511}/lib
+        --prefix LD_LIBRARY_PATH : ${pkgs.notmuch}/lib:${pkgs.file511}/lib:${pkgs.gpgme}/lib
     '';
 
     meta = {
@@ -184,14 +187,15 @@ let pythonPackages = python.modules // rec {
   });
 
 
-  astng = buildPythonPackage rec {
-    name = "logilab-astng-0.21.1";
+  logilab_astng = buildPythonPackage rec {
+    name = "logilab-astng-0.24.1";
 
     src = fetchurl {
-      url = "ftp://ftp.logilab.org/pub/astng/${name}.tar.gz";
-      sha256 = "0rqp2vwrnv6gkzdd96j078h1sz26plh49cmnyswy2wb6l4wans67";
+      url = "http://download.logilab.org/pub/astng/${name}.tar.gz";
+      sha256 = "00qxaxsax80sknwv25xl1r49lc4gbhkxs1kjywji4ad8y1npax0s";
     };
-    propagatedBuildInputs = [logilabCommon];
+
+    propagatedBuildInputs = [ logilab_common ];
   };
 
   beautifulsoup = buildPythonPackage (rec {
@@ -700,6 +704,26 @@ let pythonPackages = python.modules // rec {
   };
 
 
+  flake8 = buildPythonPackage (rec {
+    name = "flake8-1.4";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/f/flake8/${name}.tar.gz";
+      md5 = "64acc2c905178f6d6817d88574407fb5";
+    };
+
+    doCheck = false;
+
+    meta = {
+      description = "code checking using pep8 and pyflakes.";
+      homepage = http://pypi.python.org/pypi/flake8;
+      license = pkgs.lib.licenses.mit;
+      maintainers = [ stdenv.lib.maintainers.garbas ];
+      platforms = python.meta.platforms;
+    };
+  });
+
+
   flask = buildPythonPackage {
     name = "flask-0.9";
 
@@ -902,18 +926,21 @@ let pythonPackages = python.modules // rec {
 
 
   httplib2 = buildPythonPackage rec {
-    name = "httplib2-0.6.0";
+    name = "httplib2-0.7.6";
 
     src = fetchurl {
       url = "http://httplib2.googlecode.com/files/${name}.tar.gz";
-      sha256 = "134pldyxayc0x4akzzvkciz2kj1w2dsim1xvd9b1qrpmba70dpjq";
+      sha256 = "baa7bf431fa9d3c1016562de717e1ebb322a99df72a2918f6b5b8f65fa65bc2e";
     };
 
     doCheck = false; # doesn't have a test
 
     meta = {
-      homepage = http://code.google.com/p/httplib2/;
+      homepage = "http://code.google.com/p/httplib2";
       description = "A comprehensive HTTP client library";
+      license = pkgs.lib.licenses.mit;
+      maintainers = [ stdenv.lib.maintainers.garbas ];
+      platforms = python.meta.platforms;
     };
   };
 
@@ -1027,14 +1054,15 @@ let pythonPackages = python.modules // rec {
     };
   };
 
-  logilabCommon = buildPythonPackage rec {
-    name = "logilab-common-0.56.0";
+  logilab_common = buildPythonPackage rec {
+    name = "logilab-common-0.58.2";
 
     src = fetchurl {
-      url = "ftp://ftp.logilab.org/pub/common/${name}.tar.gz";
-      sha256 = "14p557nqypbd10d8k7qs6jlm58pksiwh86wvvl0axyki00hj6971";
+      url = "http://download.logilab.org/pub/common/${name}.tar.gz";
+      sha256 = "0qfdyj2is0scpnkgpnqm12lh4yl27617l0irlilhk25cpgbbfbf9";
     };
-    propagatedBuildInputs = [unittest2];
+
+    propagatedBuildInputs = [ unittest2 ];
   };
 
   lxml = buildPythonPackage ( rec {
@@ -1422,6 +1450,26 @@ let pythonPackages = python.modules // rec {
     };
   });
 
+  oauth2 = buildPythonPackage (rec {
+    name = "auth2-1.5.211";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/o/oauth2/oauth2-1.5.211.tar.gz";
+      sha256 = "82a38f674da1fa496c0fc4df714cbb058540bed72a30c50a2e344b0d984c4d21";
+    };
+
+    propagatedBuildInputs = [ httplib2  ];
+    doCheck = false;
+
+    meta = {
+      homepage = "https://github.com/simplegeo/python-oauth2";
+      description = "library for OAuth version 1.0";
+      license = pkgs.lib.licenses.mit;
+      maintainers = [ stdenv.lib.maintainers.garbas ];
+      platforms = stdenv.lib.platforms.linux;
+    };
+  });
+
   optfunc = buildPythonPackage ( rec {
     name = "optfunc-git";
 
@@ -1604,6 +1652,25 @@ let pythonPackages = python.modules // rec {
   };
 
 
+  polib = buildPythonPackage rec {
+    name = "polib-${version}";
+    version = "1.0.1";
+
+    src = fetchurl {
+      url = "http://bitbucket.org/izi/polib/downloads/${name}.tar.gz";
+      sha256 = "1sr2bb3g7rl7gr6156j5qv71kg06q1x01r1lbps9ksnyz37djn2q";
+    };
+
+    doCheck = false;
+
+    meta = {
+      description = "A library to manipulate gettext files (po and mo files)";
+      homepage = "http://bitbucket.org/izi/polib/";
+      license = pkgs.lib.licenses.mit;
+    };
+  };
+
+
   prettytable = buildPythonPackage rec {
     name = "prettytable-0.5";
 
@@ -1669,6 +1736,32 @@ let pythonPackages = python.modules // rec {
       platforms = stdenv.lib.platforms.gnu;  # arbitrary choice
     };
   });
+
+
+  pyaudio = pkgs.stdenv.mkDerivation rec {
+    name = "python-pyaudio-${version}";
+    version = "0.2.4";
+
+    src = fetchurl {
+      url = "http://people.csail.mit.edu/hubert/pyaudio/packages/pyaudio-${version}.tar.gz";
+      md5 = "623809778f3d70254a25492bae63b575";
+    };
+
+    buildInputs = [ python pkgs.portaudio ];
+
+    installPhase = ''
+      python setup.py install --prefix=$out
+    '';
+
+    doCheck = false;
+
+    meta = {
+      description = "Python bindings for PortAudio";
+      homepage = "http://people.csail.mit.edu/hubert/pyaudio/";
+      license = stdenv.lib.licenses.mit;
+    };
+  };
+
 
   Babel = buildPythonPackage (rec {
     name = "Babel-0.9.6";
@@ -1885,13 +1978,20 @@ let pythonPackages = python.modules // rec {
 
 
   pylint = buildPythonPackage rec {
-    name = "pylint-0.23.0";
+    name = "pylint-0.26.0";
+    namePrefix = "";
 
     src = fetchurl {
       url = "ftp://ftp.logilab.org/pub/pylint/${name}.tar.gz";
-      sha256 = "07091avcc2b374i5f3blszmawjcin8xssjfryz91qbxybb8r7c6d";
+      sha256 = "1mg1ywpj0klklv63s2hwn5xwxi3wfwgnyz9d4pz32hzb53azq835";
     };
-    propagatedBuildInputs = [astng];
+
+    propagatedBuildInputs = [ logilab_astng ];
+
+    meta = {
+      homepage = http://www.logilab.org/project/pylint;
+      description = "A bug and style checker for Python";
+    };
   };
 
 
@@ -2493,11 +2593,11 @@ let pythonPackages = python.modules // rec {
   });
 
   sphinx = buildPythonPackage (rec {
-    name = "Sphinx-1.0.7";
+    name = "Sphinx-1.1.3";
 
     src = fetchurl {
       url = "http://pypi.python.org/packages/source/S/Sphinx/${name}.tar.gz";
-      md5 = "42c722d48e52d4888193965dd473adb5";
+      md5 = "8f55a6d4f87fc6d528120c5d1f983e98";
     };
 
     propagatedBuildInputs = [docutils jinja2 pygments];
@@ -2656,6 +2756,45 @@ let pythonPackages = python.modules // rec {
     };
   };
 
+  turses = buildPythonPackage (rec {
+    name = "turses-0.2.5";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/t/turses/${name}.tar.gz";
+      sha256 = "fbbc0ca93324535bcafa8434395caded8047e40c25d7a4004806415dd6ca023f";
+    };
+
+    propagatedBuildInputs = [ oauth2 urwid tweepy ];
+    doCheck = false;
+
+    meta = {
+      homepage = "https://github.com/alejandrogomez/turses";
+      description = "A Twitter client for the console.";
+      license = pkgs.lib.licenses.gpl3;
+      maintainers = [ stdenv.lib.maintainers.garbas ];
+      platforms = stdenv.lib.platforms.linux;
+    };
+  });
+
+  tweepy = buildPythonPackage (rec {
+    name = "tweepy-1.11";
+
+    src = fetchurl {
+      url = "http://pypi.python.org/packages/source/t/tweepy/${name}.tar.gz";
+      sha256 = "2b9fa225e9254e2cbbb01e59c6e92d9c42e5d41d97e8c74dee93eb09babffde5";
+    };
+
+    doCheck = false;
+
+    meta = {
+      homepage = "https://github.com/tweepy/tweepy";
+      description = "Twitter library for python";
+      license = pkgs.lib.licenses.mit;
+      maintainers = [ stdenv.lib.maintainers.garbas ];
+      platforms = stdenv.lib.platforms.linux;
+    };
+  });
+
   twisted = buildPythonPackage rec {
     name = "twisted-10.2.0";
 
@@ -2727,13 +2866,13 @@ let pythonPackages = python.modules // rec {
 
 
   urwid = buildPythonPackage (rec {
-    name = "urwid-1.0.1";
+    name = "urwid-1.0.2";
 
     doCheck = false;
 
     src = fetchurl {
       url = "http://excess.org/urwid/${name}.tar.gz";
-      md5 = "828f7144b94920205e755c249d2e297f";
+      md5 = "00542bbd15fae7ea60b02a7570edee2b";
     };
 
     meta = {
@@ -2990,11 +3129,11 @@ let pythonPackages = python.modules // rec {
   };
 
   cliapp = buildPythonPackage rec {
-    name = "cliapp-1.20120630";
+    name = "cliapp-1.20120929";
 
     src = fetchurl rec {
-      url = "http://code.liw.fi/debian/pool/main/p/python-cliapp/python-cliapp_1.20120630.orig.tar.gz";
-      sha256 = "6beeb1fb3077561540094584ce36055266ac67b80f158b9b82fe4075096f4716";
+      url = "http://code.liw.fi/debian/pool/main/p/python-cliapp/python-cliapp_1.20120929.orig.tar.gz";
+      sha256 = "30d5077e53b3e45f892b1c49feaaf4f47e4664400ed71435e77a82a2b823a0f8";
     };
 
     buildInputs = [ sphinx ];
@@ -3010,11 +3149,11 @@ let pythonPackages = python.modules // rec {
   };
 
   tracing = buildPythonPackage rec {
-    name = "tracing-0.6";
+    name = "tracing-0.7";
 
     src = fetchurl rec {
-      url = "http://code.liw.fi/debian/pool/main/p/python-tracing/python-tracing_0.6.orig.tar.gz";
-      sha256 = "1164cf05891f9bca93fb87413f32d2c4da90348adbf69b0ad36a464b7adcd354";
+      url = "http://code.liw.fi/debian/pool/main/p/python-tracing/python-tracing_0.7.orig.tar.gz";
+      sha256 = "9954a1b0cc6b957d15975b048f929bbdd46766d397a6fa51bf8f6498b9459276";
     };
 
     buildInputs = [ sphinx ];
@@ -3030,11 +3169,11 @@ let pythonPackages = python.modules // rec {
   };
 
   ttystatus = buildPythonPackage rec {
-    name = "ttystatus-0.19";
+    name = "ttystatus-0.21";
 
     src = fetchurl rec {
-      url = "http://code.liw.fi/debian/pool/main/p/python-ttystatus/python-ttystatus_0.19.orig.tar.gz";
-      sha256 = "7cc112a4783f2e0c354c5244f8e50b18733b5957677b56a755c1016e04c0c28d";
+      url = "http://code.liw.fi/debian/pool/main/p/python-ttystatus/python-ttystatus_0.21.orig.tar.gz";
+      sha256 = "4a1f3a41c9bd3b5d2bd8e6f093890857301e590aa1d428fc9a6dca591227244c";
     };
 
     buildInputs = [ sphinx ];
@@ -3050,11 +3189,11 @@ let pythonPackages = python.modules // rec {
   };
 
   larch = buildPythonPackage rec {
-    name = "larch-1.20120527";
+    name = "larch-1.20121006";
 
     src = fetchurl rec {
-      url = "http://code.liw.fi/debian/pool/main/p/python-larch/python-larch_1.20120527.orig.tar.gz";
-      sha256 = "2865a1bfa6bd276bf746e8e7cb73d5199d0b6d00045d8c92e158626687d3bbe1";
+      url = "http://code.liw.fi/debian/pool/main/p/python-larch/python-larch_1.20121006.orig.tar.gz";
+      sha256 = "b4482981010e9c22ee3fce6fdc664b8fc0a1a3a18ed30b40f247f3b44437ccfa";
     };
 
     buildInputs = [ sphinx ];

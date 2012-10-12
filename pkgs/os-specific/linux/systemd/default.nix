@@ -1,29 +1,23 @@
 { stdenv, fetchurl, pkgconfig, intltool, gperf, libcap, dbus, kmod
 , xz, pam, acl, cryptsetup, libuuid, m4, utillinux, usbutils, pciutils
-, glib, kbd, libxslt
+, glib, kbd, libxslt, coreutils, libgcrypt
 }:
 
 assert stdenv.gcc.libc or null != null;
 
 stdenv.mkDerivation rec {
-  name = "systemd-191";
+  name = "systemd-194";
 
   src = fetchurl {
     url = "http://www.freedesktop.org/software/systemd/${name}.tar.xz";
-    sha256 = "0r0xz8dksacm20516kakqf6xchydhcc1lkvz3m75z1gbl6sa581g";
+    sha256 = "0cgnnl6kqaz3als5y9g8jvsvbs4c8ccp0vl4s1g8rwk69w2cwxd2";
   };
 
-  patches = [ ./reexec.patch ] ++
-            # Remove this patch after the next update.
-            stdenv.lib.optional (stdenv.system == "i686-linux") (fetchurl {
-              url = "https://bugs.freedesktop.org/attachment.cgi?id=67621";
-	      name = "fix-32-bit-build.patch";
-	      sha256 = "1i4xn6lc6iapaasd2lz717b1zrq5ds5g18i7m509fgfwy7w7x95l";
-            });
+  patches = [ ./reexec.patch ./ignore-duplicates.patch ./fix-device-aliases.patch ];
 
   buildInputs =
     [ pkgconfig intltool gperf libcap dbus kmod xz pam acl
-      /* cryptsetup */ libuuid m4 usbutils pciutils glib libxslt
+      /* cryptsetup */ libuuid m4 usbutils pciutils glib libxslt libgcrypt
     ];
 
   configureFlags =
@@ -62,6 +56,9 @@ stdenv.mkDerivation rec {
       # lead to a cyclic dependency.
       "-DPOLKIT_AGENT_BINARY_PATH=\"/run/current-system/sw/bin/pkttyagent\""
       "-fno-stack-protector"
+      # Work around our kernel headers being too old.  FIXME: remove
+      # this after the next stdenv update.
+      "-DFS_NOCOW_FL=0x00800000"
     ];
 
   makeFlags = "CPPFLAGS=-I${stdenv.gcc.libc}/include";
@@ -81,7 +78,12 @@ stdenv.mkDerivation rec {
       for i in init halt poweroff runlevel reboot shutdown; do
         ln -s $out/bin/systemctl $out/sbin/$i
       done
-    '';
+
+      # Fix reference to /bin/false in the D-Bus services.
+      for i in $out/share/dbus-1/system-services/*.service; do
+        substituteInPlace $i --replace /bin/false ${coreutils}/bin/false
+      done
+    ''; # */
 
   enableParallelBuilding = true;
 
@@ -94,8 +96,9 @@ stdenv.mkDerivation rec {
   passthru.interfaceVersion = 2;
 
   meta = {
-    homepage = http://www.freedesktop.org/wiki/Software/systemd;
+    homepage = "http://www.freedesktop.org/wiki/Software/systemd";
     description = "A system and service manager for Linux";
     platforms = stdenv.lib.platforms.linux;
+    maintainers = [ stdenv.lib.maintainers.eelco stdenv.lib.maintainers.simons ];
   };
 }
