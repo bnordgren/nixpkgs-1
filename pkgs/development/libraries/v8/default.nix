@@ -22,7 +22,7 @@ stdenv.mkDerivation rec {
       ln -sv ${gyp}/bin/gyp build/gyp/gyp
     '';
 
-    buildNativeInputs = stdenv.lib.optional (system == "i686-linux") which;
+    nativeBuildInputs = stdenv.lib.optional (system == "i686-linux") which;
     buildInputs = [ readline python ];
 
     buildFlags = [
@@ -37,7 +37,11 @@ stdenv.mkDerivation rec {
       mkdir -p $out/bin
       mkdir -p $out/lib
       mv -v out/${arch}.release/d8 $out/bin
-      mv -v out/${arch}.release/lib.target/libv8.so $out/lib
+
+      ${if stdenv.system == "x86_64-darwin" then
+        "mv -v out/${arch}.release/libv8.dylib $out/lib"
+      else
+        "mv -v out/${arch}.release/lib.target/libv8.so $out/lib"}
       mv -v include $out/
     '';
 }

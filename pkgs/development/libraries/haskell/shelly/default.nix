@@ -1,14 +1,17 @@
-{ cabal, mtl, systemFileio, systemFilepath, text, time, unixCompat
+{ cabal, hspec, HUnit, mtl, systemFileio, systemFilepath, text
+, time, unixCompat
 }:
 
 cabal.mkDerivation (self: {
   pname = "shelly";
-  version = "0.14.1";
-  sha256 = "1cvfak5siysnpms1znra6dk762zp0gv1sam3xfdp67a7ir0hpcpp";
+  version = "0.15.4.1";
+  sha256 = "12m11s22izz0ny1syb1ykp2hi9n240myf0nhapvn8jx1fgf5iyck";
   buildDepends = [
     mtl systemFileio systemFilepath text time unixCompat
   ];
-  jailbreak = true;
+  testDepends = [
+    hspec HUnit mtl systemFileio systemFilepath text time unixCompat
+  ];
   meta = {
     homepage = "https://github.com/yesodweb/Shelly.hs";
     description = "shell-like (systems) programming in Haskell";

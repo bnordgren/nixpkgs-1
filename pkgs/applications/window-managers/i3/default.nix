@@ -1,19 +1,23 @@
-{ fetchurl, stdenv, which, pkgconfig, libxcb, xcbutilkeysyms, xcbutil, bison,
-  xcbutilwm, libstartup_notification, libX11, pcre, libev, yajl, flex,
+{ fetchurl, stdenv, which, pkgconfig, libxcb, xcbutilkeysyms, xcbutil,
+  xcbutilwm, libstartup_notification, libX11, pcre, libev, yajl,
   libXcursor, coreutils, perl }:
 
 stdenv.mkDerivation rec {
-  name = "i3-4.2";
+  name = "i3-${version}";
+  version = "4.5";
 
   src = fetchurl {
     url = "http://i3wm.org/downloads/${name}.tar.bz2";
-    sha256 = "e02c832820e8922a44e744e555294f8580c2f8e218c5c1029e52f1bde048732b";
+    sha256 = "1kiffcbvvjljqchw9ffgy9s8f9z06i8805jvjas58q5i2yxl5kcy";
   };
 
-  buildInputs = [ which pkgconfig libxcb xcbutilkeysyms xcbutil bison xcbutilwm
-    libstartup_notification libX11 pcre libev yajl flex libXcursor perl ];
+  buildInputs = [ which pkgconfig libxcb xcbutilkeysyms xcbutil xcbutilwm
+    libstartup_notification libX11 pcre libev yajl libXcursor perl ];
 
-  patchPhase = "patchShebangs .";
+  patchPhase = ''
+    sed -i -e '/^# Pango/,/^$/d' common.mk
+    patchShebangs .
+  '';
 
   configurePhase = "makeFlags=PREFIX=$out";
 

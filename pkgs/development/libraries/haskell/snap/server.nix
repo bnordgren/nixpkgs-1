@@ -1,18 +1,17 @@
-{ cabal, attoparsec, attoparsecEnumerator, binary, blazeBuilder
-, blazeBuilderEnumerator, caseInsensitive, directoryTree
-, enumerator, filepath, MonadCatchIOTransformers, mtl, network
-, snapCore, text, time, transformers, unixCompat
+{ cabal, attoparsec, attoparsecEnumerator, blazeBuilder
+, blazeBuilderEnumerator, caseInsensitive, enumerator
+, MonadCatchIOTransformers, mtl, network, snapCore, text, time
+, unixCompat
 }:
 
 cabal.mkDerivation (self: {
   pname = "snap-server";
-  version = "0.9.2.3";
-  sha256 = "0wl7clzwrd34d32sikd6vkj3pla9yni26mmdsnrjw1s3lq412yqd";
+  version = "0.9.3.3";
+  sha256 = "1n50xyhg4rva7ifv70825177606q87ip7f9p5kf94i9kci0kmlig";
   buildDepends = [
-    attoparsec attoparsecEnumerator binary blazeBuilder
-    blazeBuilderEnumerator caseInsensitive directoryTree enumerator
-    filepath MonadCatchIOTransformers mtl network snapCore text time
-    transformers unixCompat
+    attoparsec attoparsecEnumerator blazeBuilder blazeBuilderEnumerator
+    caseInsensitive enumerator MonadCatchIOTransformers mtl network
+    snapCore text time unixCompat
   ];
   meta = {
     homepage = "http://snapframework.com/";

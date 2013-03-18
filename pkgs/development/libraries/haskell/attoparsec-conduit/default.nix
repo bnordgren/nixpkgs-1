@@ -1,10 +1,12 @@
-{ cabal, attoparsec, conduit, text, transformers }:
+{ cabal, attoparsec, conduit, hspec, resourcet, text, transformers
+}:
 
 cabal.mkDerivation (self: {
   pname = "attoparsec-conduit";
-  version = "0.5.0.1";
-  sha256 = "1qrg524gr9ajdxaqd9gmxpj45d7ga21q27ykr76kjdwxfpqaq6n8";
+  version = "1.0.0";
+  sha256 = "1aw071qcwhxwpd6azhgaiia97rhj50rms4pysbc19iihmdih3ib8";
   buildDepends = [ attoparsec conduit text transformers ];
+  testDepends = [ attoparsec conduit hspec resourcet text ];
   meta = {
     homepage = "http://github.com/snoyberg/conduit";
     description = "Consume attoparsec parsers via conduit";

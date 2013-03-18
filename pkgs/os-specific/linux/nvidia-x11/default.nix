@@ -8,23 +8,25 @@
 
 with stdenv.lib;
 
-let versionNumber = "304.43"; in
+let versionNumber = "310.32"; in
 
 stdenv.mkDerivation {
   name = "nvidia-x11-${versionNumber}${optionalString (!libsOnly) "-${kernel.version}"}";
 
   builder = ./builder.sh;
 
+  patches = [ ./version-test.patch ];
+
   src =
     if stdenv.system == "i686-linux" then
       fetchurl {
         url = "http://us.download.nvidia.com/XFree86/Linux-x86/${versionNumber}/NVIDIA-Linux-x86-${versionNumber}.run";
-        sha256 = "0k1csg547n6h3vb7phfhfcxnvqgqad55l7zgp0lai9d008rlhzvw";
+        sha256 = "13dc2s312h4k4bp7qb2ymdafr739jxbh0f3h1ilrkyjkd945cgnl";
       }
     else if stdenv.system == "x86_64-linux" then
       fetchurl {
         url = "http://us.download.nvidia.com/XFree86/Linux-x86_64/${versionNumber}/NVIDIA-Linux-x86_64-${versionNumber}-no-compat32.run";
-        sha256 = "0m6dxlhpg6705qrg6czk98gn14zic3xgbxr02czwmhyppgsi3f9i";
+        sha256 = "1wk0lcm712glffdmwpk4drrwb0fjva7qhpxylnqs7fl7d3acnsvq";
       }
     else throw "nvidia-x11 does not support platform ${stdenv.system}";
 
@@ -37,6 +39,8 @@ stdenv.mkDerivation {
   glPath = stdenv.lib.makeLibraryPath [xlibs.libXext xlibs.libX11 xlibs.libXrandr];
 
   cudaPath = stdenv.lib.makeLibraryPath [zlib stdenv.gcc.gcc];
+
+  openclPath = stdenv.lib.makeLibraryPath [zlib];
 
   programPath = optionalString (!libsOnly) (stdenv.lib.makeLibraryPath
     [ gtk atk pango glib gdk_pixbuf xlibs.libXv ] );

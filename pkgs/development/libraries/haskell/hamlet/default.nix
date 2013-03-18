@@ -1,14 +1,15 @@
-{ cabal, blazeBuilder, blazeHtml, blazeMarkup, failure, parsec
-, shakespeare, text
+{ cabal, blazeBuilder, blazeHtml, blazeMarkup, failure, hspec
+, HUnit, parsec, shakespeare, text
 }:
 
 cabal.mkDerivation (self: {
   pname = "hamlet";
-  version = "1.1.0.3";
-  sha256 = "0mljr7jbixji69xwgzfm0ka5r2jvlg4vmkd5ih6r91jk83j04bf9";
+  version = "1.1.6.4";
+  sha256 = "1cjv32sajwq9lhgh3a8xb0z6j89121k8ndp6g21lmbdzc9fhpws0";
   buildDepends = [
     blazeBuilder blazeHtml blazeMarkup failure parsec shakespeare text
   ];
+  testDepends = [ blazeHtml blazeMarkup hspec HUnit parsec text ];
   meta = {
     homepage = "http://www.yesodweb.com/book/shakespearean-templates";
     description = "Haml-like template files that are compile-time checked";

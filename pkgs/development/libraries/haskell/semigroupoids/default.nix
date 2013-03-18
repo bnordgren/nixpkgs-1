@@ -2,8 +2,8 @@
 
 cabal.mkDerivation (self: {
   pname = "semigroupoids";
-  version = "3.0";
-  sha256 = "0wsax14ck363nby0xrhcpvdzf0pzspayl7gsm0br0lr6ipmpcrag";
+  version = "3.0.2";
+  sha256 = "0k137iafw0srgmy4qwx3cbx00519c0h91nmszdbx6pzpvf6m5fwm";
   buildDepends = [ comonad contravariant semigroups transformers ];
   meta = {
     homepage = "http://github.com/ekmett/semigroupoids";

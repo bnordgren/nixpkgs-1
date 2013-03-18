@@ -4,8 +4,8 @@
 
 cabal.mkDerivation (self: {
   pname = "splot";
-  version = "0.3.4";
-  sha256 = "1qfi8vqm4zliz0lmi6njicm8xha6w8w55il09k0d1w5akwi93x5j";
+  version = "0.3.8";
+  sha256 = "188v9c070wn6gr47k5q55gsiph0lj96d96bss76gz7znknfj9rm3";
   isLibrary = false;
   isExecutable = true;
   buildDepends = [

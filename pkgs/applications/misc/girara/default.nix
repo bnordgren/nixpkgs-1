@@ -1,11 +1,11 @@
 { stdenv, fetchurl, pkgconfig, gtk, gettext }:
 
 stdenv.mkDerivation rec {
-  name = "girara-0.1.2";
+  name = "girara-0.1.5";
 
   src = fetchurl {
     url = "http://pwmt.org/projects/girara/download/${name}.tar.gz";
-    sha256 = "89231d0da3c790e0765ad85d74f64cf50051b8bafe6065882e34e378ab14ec99";
+    sha256 = "1hfi3jmx8ydvrqm3h6p6py2csavh7xx0223vxyca51kjl9mfnbld";
   };
 
   buildInputs = [ pkgconfig gtk gettext ];
@@ -19,8 +19,9 @@ stdenv.mkDerivation rec {
       girara is a library that implements a GTK+ based VIM-like user interface
       that focuses on simplicity and minimalism.
     '';
-    license = "free";
+    license = stdenv.lib.licenses.zlib;
     platforms = stdenv.lib.platforms.linux;
+    maintainers = [ stdenv.lib.maintainers.garbas ];
   };
 }
 

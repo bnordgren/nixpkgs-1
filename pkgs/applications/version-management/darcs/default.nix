@@ -1,20 +1,25 @@
 { cabal, curl, extensibleExceptions, filepath, hashedStorage
 , haskeline, html, HTTP, mmap, mtl, network, parsec, random
-, regexCompat, tar, terminfo, text, vector, zlib
+, regexCompat, tar, terminfo, text, utf8String, vector, zlib
 }:
 
 cabal.mkDerivation (self: {
   pname = "darcs";
-  version = "2.8.2";
-  sha256 = "1gd8028k91hjsd9hvx3pw4h5zsn2ckc7pfp7f1f566dpp1g422v5";
+  version = "2.8.4";
+  sha256 = "164zclgib9ql4rqykpdhhk2bad0m5v0k0iwzsj0z7nax5nxlvarz";
   isLibrary = true;
   isExecutable = true;
   buildDepends = [
     extensibleExceptions filepath hashedStorage haskeline html HTTP
-    mmap mtl network parsec random regexCompat tar terminfo text vector
-    zlib
+    mmap mtl network parsec random regexCompat tar terminfo text
+    utf8String vector zlib
   ];
   extraLibraries = [ curl ];
+  postInstall = ''
+    mkdir -p $out/etc/bash_completion.d
+    mv contrib/darcs_completion $out/etc/bash_completion.d/darcs
+  '';
+  doCheck = false;
   meta = {
     homepage = "http://darcs.net/";
     description = "a distributed, interactive, smart revision control system";

@@ -43,10 +43,16 @@ rec {
   });
 
   gitAnnex = lib.makeOverridable (import ./git-annex) {
-    inherit stdenv fetchurl libuuid rsync findutils curl perl git ikiwiki which coreutils openssh;
-    inherit (haskellPackages) ghc MissingH utf8String pcreLight SHA dataenc
-      HTTP testpack hS3 mtl network hslogger hxt json liftedBase monadControl IfElse
-      QuickCheck bloomfilter editDistance stm hinotify;
+    inherit stdenv fetchurl perl which ikiwiki curl bup git gnupg1 lsof openssh rsync;
+    inherit (haskellPackages) ghc aeson async blazeBuilder bloomfilter
+      caseInsensitive clientsession cryptoApi dataDefault dataenc DAV dbus dns
+      editDistance extensibleExceptions filepath gnutls hamlet hinotify hS3
+      hslogger httpConduit httpTypes HUnit IfElse json liftedBase MissingH
+      monadControl mtl network networkInfo networkMulticast networkProtocolXmpp
+      QuickCheck random regexCompat SafeSemaphore SHA stm text time
+      transformers transformersBase utf8String uuid wai waiLogger warp
+      xmlConduit xmlTypes yesod yesodDefault yesodForm yesodStatic testpack
+      cabalInstall;
   };
 
   qgit = import ./qgit {
@@ -71,6 +77,11 @@ rec {
 
   tig = import ./tig {
     inherit stdenv fetchurl ncurses asciidoc xmlto docbook_xsl;
+  };
+
+  hub = import ./hub {
+    inherit (rubyLibs) rake;
+    inherit stdenv fetchgit groff makeWrapper;
   };
 
   gitFastExport = import ./fast-export {

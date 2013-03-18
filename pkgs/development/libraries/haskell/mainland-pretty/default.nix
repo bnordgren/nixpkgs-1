@@ -2,8 +2,8 @@
 
 cabal.mkDerivation (self: {
   pname = "mainland-pretty";
-  version = "0.2.2";
-  sha256 = "0kvn67g2ic46ybgyxpgpzjapwiww9848m9dv8y3xkkl7jd8anpb2";
+  version = "0.2.5";
+  sha256 = "0h3q7xw69dc0lcqwlacsnv36dlbj0sfgv5imjlqrixy6m5cniq9x";
   buildDepends = [ srcloc text ];
   meta = {
     homepage = "http://www.eecs.harvard.edu/~mainland/";
